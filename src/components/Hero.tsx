@@ -15,7 +15,9 @@ export default function Hero() {
                         Practice algorithms through interactive exercises designed to help you truly understand
                         programming logic.
                     </p>
-                    <button className="btn btn-primary mt-2">Let&apos;s begin</button>
+                    <button className="btn mt-2 text-white" style={{ backgroundColor: '#3B82F6' }}>
+                        Let&apos;s begin
+                    </button>
                 </div>
 
                 <div className="flex-1">
