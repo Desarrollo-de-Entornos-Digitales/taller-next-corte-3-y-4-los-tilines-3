@@ -1,6 +1,18 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function NavBar() {
+    const router = useRouter();
+
+    const handleLogout = () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        // Redirigir al login y recargar para limpiar estados
+        router.push('/login');
+        router.refresh();
+    };
     return (
         <div
             className="navbar bg-base-100 px-4 sticky top-0 z-50 shadow-md"
@@ -43,7 +55,7 @@ export default function NavBar() {
                         <li><a>Profile</a></li>
                         <li><a>Settings</a></li>
                         <div className="divider my-0"></div>
-                        <li><a className="text-error">Logout</a></li>
+                        <li><a className="text-error font-bold" onClick={handleLogout}>Logout</a></li>
                     </ul>
                 </div>
             </div>

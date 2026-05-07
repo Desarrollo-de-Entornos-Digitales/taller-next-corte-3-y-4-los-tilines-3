@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Proyecto Taller Next.js - Corte 3 y 4
 
-## Getting Started
+Este proyecto consiste en una aplicacion frontend desarrollada con Next.js que se integra con un backend en NestJS. La plataforma permite la gestion de usuarios, autenticacion y visualizacion de un feed de modulos de aprendizaje con seguimiento de progreso.
 
-First, run the development server:
+## Instrucciones de Ejecucion
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Requisitos Previos
+Es necesario tener instalado Node.js y Docker Desktop para el manejo de la base de datos y el backend.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Configuracion del Backend
+1. Navegar a la carpeta del backend.
+2. Ejecutar el comando para levantar los servicios:
+   docker-compose up --build
+3. Para cargar los datos de prueba, ejecutar el script SQL incluido:
+   Get-Content seed.sql | docker exec -i postgres-db psql -U postgres -d mydatabase
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Configuracion del Frontend
+1. Navegar a la carpeta del frontend.
+2. Instalar las dependencias:
+   npm install
+3. Iniciar el servidor de desarrollo:
+   npm run dev
+4. Acceder a la aplicacion en http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Funcionalidades Implementadas
 
-## Learn More
+### 1. Autenticacion Completa
+Se implemento un flujo de acceso seguro que incluye:
+- Registro de nuevos usuarios con asignacion dinamica de roles desde la base de datos.
+- Inicio de sesion validando credenciales contra el backend.
+- Cierre de sesion que limpia la sesion del navegador y protege las rutas privadas.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Feed Dinamico de Modulos
+La pantalla principal consume datos reales del backend para mostrar:
+- Lista de modulos organizados por su estado (Pendientes, En curso y Completados).
+- Barra de progreso visual y porcentaje de completitud para cada elemento.
+- Filtrado por cursos segun las inscripciones del usuario logueado.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Sistema de Paginacion
+Se investigo e implemento una estrategia de paginacion por offset. El frontend solicita un limite especifico de elementos por pagina y permite la navegacion entre ellas mediante controles de usuario, optimizando la carga de datos.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Detalles Tecnicos
 
-## Deploy on Vercel
+### Gestion de Autenticacion y JWT
+La seguridad se basa en tokens JWT (JSON Web Tokens). Al iniciar sesion, el backend retorna un token que se almacena en el localStorage del navegador. Para las peticiones que requieren autorizacion, se utiliza un cliente de Axios configurado con interceptores que adjuntan automaticamente el token en las cabeceras de autorizacion (Bearer token).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Gestion del Estado y Componentes
+La gestion del estado se realiza de forma local y mediante hooks de React como useState y useEffect para manejar la informacion del usuario y el contenido del feed. 
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Se construyo una base de mas de 10 componentes reutilizables, entre los que destacan:
+- Campos de entrada especializados (EmailInput, PasswordInput).
+- Botones configurables.
+- Cards para el renderizado de modulos.
+- Barra de navegacion dinamica.
+- Hero y secciones de contenido.
+
+### Organizacion del Proyecto
+El codigo sigue una estructura limpia separando responsabilidades:
+- /components: Componentes visuales reutilizables.
+- /app: Logica de paginas y servicios de API.
+- /lib: Configuracion de clientes y librerias externas.

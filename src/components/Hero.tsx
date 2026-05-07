@@ -8,7 +8,7 @@ interface HeroProps {
 
 export default function Hero({ 
     isDashboard = false, 
-    username = 'Veronica', 
+    username = 'User', 
     description = 'Practice algorithms through interactive exercises designed to help you truly understand programming logic.' 
 }: HeroProps) {
     return (
