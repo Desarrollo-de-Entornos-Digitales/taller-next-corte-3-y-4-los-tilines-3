@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import EmailInput from '@/common/components/emailInput';
 import PasswordInput from '@/common/components/passwordInput';
@@ -9,11 +9,27 @@ import Button from '@/common/components/Button';
 import Input from '@/common/components/Input';
 
 import { registerService } from './services/register.service';
+import { getRoles, Role } from '../../services/roleService';
 
 export default function Register() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [role, setRole] = useState('');
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const data = await getRoles();
+                setRoles(data);
+                if (data.length > 0) setRole(data[0].name);
+            } catch (err) {
+                console.error('Error fetching roles:', err);
+            }
+        };
+        fetchRoles();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -35,13 +51,10 @@ export default function Register() {
         } catch (err: any) {
             console.error('Registration error details:', err);
             
-            // Manejo robusto de errores
             if (err.response) {
-                // El servidor respondió con un error (400, 401, 500, etc.)
                 const message = err.response.data?.message || 'Error en el registro. Verifica los datos.';
                 setError(Array.isArray(message) ? message.join(', ') : message);
             } else if (err.request) {
-                // No hubo respuesta del servidor (Error de red o CORS)
                 setError('No se pudo conectar con el servidor. ¿Está el backend encendido en el puerto 3001?');
             } else {
                 setError('Ocurrió un error inesperado al intentar registrarte.');
@@ -93,12 +106,14 @@ export default function Register() {
                             <label className="text-sm font-medium text-gray-700">Rol</label>
                             <select
                                 name="roleName"
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
                                 className="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-50 text-gray-700"
                                 required
                             >
-                                <option value="">Selecciona un rol</option>
-                                <option value="admin">admin</option>
-                                <option value="user">user</option>
+                                {roles.map((r) => (
+                                    <option key={r.id} value={r.name}>{r.name}</option>
+                                ))}
                             </select>
                         </div>
 

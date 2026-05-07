@@ -17,38 +17,50 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState('User');
 
-  // Carga inicial: Usuario y sus Cursos
   useEffect(() => {
     const initDashboard = async () => {
       try {
         setLoading(true);
         const userStr = localStorage.getItem('user');
-        if (!userStr) throw new Error("No user found in session");
         
-        const user = JSON.parse(userStr);
-        setUsername(user.username || 'User');
+        let userId = 0;
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          setUsername(user.username || 'User');
+          userId = user.id;
+        }
 
-        // 1. Cargar Inscripciones
-        const enrollments = await getMyEnrollments(user.id);
-        setCourses(enrollments);
+        // 1. Intentar cargar cursos (pero no morir si falla)
+        let enrollments: Enrollment[] = [];
+        if (userId) {
+          try {
+            enrollments = await getMyEnrollments(userId);
+            setCourses(enrollments);
+          } catch (e) {
+            console.warn("No enrollments found for this user");
+          }
+        }
 
-        // 2. Si tiene cursos, seleccionar el primero y cargar su feed
+        // 2. Cargar feed
         if (enrollments.length > 0) {
           const firstCourseId = enrollments[0].course_id;
           setSelectedCourseId(firstCourseId);
           await loadFeed(1, firstCourseId);
         } else {
-          setLoading(false);
+          // Si no hay cursos inscritos (Admin o nuevo), cargar el feed por defecto del sistema
+          await loadFeed(1);
         }
       } catch (err) {
-        setError("Could not load your dashboard. Are you logged in?");
+        console.error("Dashboard init error:", err);
+        setError("Could not load your dashboard. Try logging in again.");
+      } finally {
         setLoading(false);
       }
     };
     initDashboard();
   }, []);
 
-  const loadFeed = async (page: number, courseId: number) => {
+  const loadFeed = async (page: number, courseId?: number) => {
     try {
       setLoading(true);
       const data = await getFeedItems(page, 6, courseId);
