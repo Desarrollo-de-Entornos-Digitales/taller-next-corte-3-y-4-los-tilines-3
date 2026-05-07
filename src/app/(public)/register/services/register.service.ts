@@ -1,14 +1,15 @@
-import axiosClient from '@/lib/axios/client';
+import axiosClient from '../../../../lib/axios/client';
 
 class RegisterService {
-    async register(email: string, password: string, username: string, bio: string = '') {
+    async register(username: string, email: string, password: string, bio: string, roleName: string) {
         const result = await axiosClient.post('/auth/register', {
-            email,
-            password,
             username,
+            email,
+            passwordHash: password,
             bio,
+            roleName,
         });
-        return result.data;
+        return result;
     }
 }
 

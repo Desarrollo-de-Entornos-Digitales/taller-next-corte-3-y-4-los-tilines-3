@@ -1,4 +1,8 @@
-export default function PasswordInput() {
+interface PasswordInputProps {
+    name?: string;
+}
+
+export default function PasswordInput({ name = 'password' }: PasswordInputProps) {
     return (
         <div className="w-full">
             <label className="input validator w-full">
@@ -8,7 +12,7 @@ export default function PasswordInput() {
                         <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
                     </g>
                 </svg>
-                <input type="password" name="password" required placeholder="Password" />
+                <input type="password" name={name} required placeholder="Password" />
             </label>
         </div>
     );
