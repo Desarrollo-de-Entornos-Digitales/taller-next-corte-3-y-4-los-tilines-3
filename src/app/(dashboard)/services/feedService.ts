@@ -1,3 +1,4 @@
+// 2. src/app/(dashboard)/services/feedService.ts
 import axiosClient from '../../../lib/axios/client';
 
 export interface FeedItem {
@@ -18,50 +19,21 @@ export interface FeedResponse {
 }
 
 /**
- * Obtener módulos del estudiante autenticado
+ * Obtener módulos con paginación y filtro por curso
  */
 export const getFeedItems = async (
-  page: number = 1,
-  limit: number = 6
+  page: number = 1, 
+  limit: number = 6,
+  courseId?: number
 ): Promise<FeedResponse> => {
   try {
-    const response = await axiosClient.get<FeedResponse>(
-      `/modules/my-modules`,
-      {
-        params: {
-          page,
-          limit,
-        },
-      }
-    );
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching feed items:', error);
-    throw error;
-  }
-};
-
-/**
- * Obtener módulos por curso
- */
-export const getFeedItemsByCourse = async (
-  courseId: number,
-  page: number = 1,
-  limit: number = 6
-): Promise<FeedResponse> => {
-  try {
-    const response = await axiosClient.get<FeedResponse>(
-      `/modules/my-modules`,
-      {
-        params: {
-          course_id: courseId,
-          page,
-          limit,
-        },
-      }
-    );
-    
+    const response = await axiosClient.get<FeedResponse>(`/modules/my-modules`, {
+      params: {
+        page,
+        limit,
+        ...(courseId && { course_id: courseId }) // El backend usa course_id
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching feed items:', error);
