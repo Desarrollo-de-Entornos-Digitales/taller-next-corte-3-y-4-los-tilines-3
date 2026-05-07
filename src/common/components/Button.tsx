@@ -1,11 +1,14 @@
 type ButtonProps = {
     name: string;
+    type?: 'button' | 'submit' | 'reset';
 };
 
-export default function Button({ name }: ButtonProps) {
+export default function Button({ name, type = 'submit' }: ButtonProps) {
     return (
         <div>
-            <button className="btn btn-neutral">{name}</button>
+            <button type={type} className="btn btn-neutral">
+                {name}
+            </button>
         </div>
     );
 }

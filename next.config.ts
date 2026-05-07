@@ -1,7 +1,15 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-    /* config options here */
+    // Proxy/rewrite desactivado para pruebas de CORS directas
+    // async rewrites() {
+    //     return [
+    //         {
+    //             source: '/api/:path*',
+    //             destination: 'http://localhost:3001/:path*', // Proxy hacia tu backend
+    //         },
+    //     ];
+    // },
 };
 
 export default nextConfig;

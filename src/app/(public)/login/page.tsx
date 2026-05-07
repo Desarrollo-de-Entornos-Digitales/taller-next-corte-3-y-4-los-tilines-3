@@ -6,8 +6,21 @@ import EmailInput from '@/common/components/emailInput';
 import PasswordInput from '@/common/components/passwordInput';
 import Button from '@/common/components/Button';
 
+import { loginService } from './services/login.service';
+
 export default function Login() {
     const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        console.info(email, password);
+        const result = await loginService.login(email, password);
+        console.info(result);
+        router.push('/feed');
+    };
 
     return (
         <div className="min-h-screen flex bg-blue-700">
@@ -15,7 +28,7 @@ export default function Login() {
                 <div className="w-full max-w-sm">
                     <h1 className="text-4xl font-bold text-gray-900 mb-10">Lets get you started!</h1>
 
-                    <form className="flex flex-col gap-6">
+                    <form className="flex flex-col gap-6" onSubmit={(e) => void handleSubmit(e)}>
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">Email</label>
                             <EmailInput />
