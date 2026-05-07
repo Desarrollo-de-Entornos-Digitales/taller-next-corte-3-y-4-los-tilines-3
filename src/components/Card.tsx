@@ -6,7 +6,7 @@ export default function Card() {
             </figure>
             <div className="card-body">
                 <h2 className="card-title">Excersice</h2>
-                <p className="italic">Algo sobre el ejercicio</p>
+                <p className="italic">About the excersice</p>
                 <div className="card-actions justify-end">
                     <button className="btn text-white" style={{ backgroundColor: '#3B82F6' }}>
                         Start
