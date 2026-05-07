@@ -1,9 +1,16 @@
 export default function NavBar() {
     return (
-        <div className="navbar bg-base-100 shadow-sm px-4">
+        <div
+            className="navbar bg-base-100 px-4"
+            style={{
+                boxShadow: '0 4px 10px rgba(0,0,0,0.25)',
+                borderBottomLeftRadius: 15,
+                borderBottomRightRadius: 15,
+            }}
+        >
             <div className="flex-1">
                 <a className="btn btn-ghost p-0 hover:bg-transparent">
-                    <img src="otly-logo.svg" alt="otly logo" className="h-8 w-auto" />
+                    <img src="otly.svg" alt="otly logo" className="h-8 w-auto" />
                 </a>
             </div>
 
