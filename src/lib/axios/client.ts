@@ -1,17 +1,26 @@
 import axios from 'axios';
 
-// Log para depuración: mostrar el valor de la variable de entorno en el cliente
-if (typeof window !== 'undefined') {
-    // Solo en el cliente
-    // eslint-disable-next-line no-console
-    console.log('NEXT_PUBLIC_API:', process.env.NEXT_PUBLIC_API);
-}
-
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API,
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+// Interceptor para añadir el token a las peticiones automáticamente
+axiosClient.interceptors.request.use(
+    (config) => {
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 export default axiosClient;
