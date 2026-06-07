@@ -44,23 +44,27 @@ export default function Card({
 
   const handleClick = () => {
     if (onButtonClick) onButtonClick();
-    if (item && courseId) {
-      router.push(`/ejercicios/course/${courseId}/module/${item.id}`);
+    if (item) {
+      if (courseId) {
+        router.push(`/ejercicios/course/${courseId}/module/${item.id}`);
+      } else {
+        router.push(`/courses`);
+      }
     }
   };
 
   return (
-    <div className="card bg-base-100 shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="card bg-white shadow-sm ring-1 ring-black/5 rounded-3xl overflow-hidden hover:shadow-md transition-all hover:-translate-y-1">
       <figure className={`h-40 ${config.bg} flex items-center justify-center relative`}>
         {isCompleted && (
-            <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/30 shadow-xl">
+            <div className="absolute top-3 right-3 bg-white/30 backdrop-blur-md p-2 rounded-full border border-white/40 shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
         )}
         {(item?.image || image.includes('/')) && (
-            <img src={displayImage} alt={displayTitle} className="max-h-full w-full object-cover" />
+            <img src={displayImage} alt={displayTitle} className="max-h-full w-full object-cover mix-blend-multiply opacity-90" />
         )}
       </figure>
       <div className="card-body p-5">
@@ -91,11 +95,11 @@ export default function Card({
             )}
         </div>
         
-        <div className="card-actions justify-start mt-2">
+        <div className="card-actions justify-start mt-4">
           <button 
-            className={`btn border-none px-10 text-white font-bold rounded-lg shadow-md transition-all active:scale-95 text-xs h-10 min-h-0 ${
+            className={`btn border-none px-6 text-white font-bold rounded-2xl shadow-sm transition-all active:scale-95 text-xs h-10 min-h-0 ${
                 isCompleted 
-                ? 'bg-gray-800 hover:bg-black' 
+                ? 'bg-zinc-800 hover:bg-black' 
                 : 'bg-[#4A86F7] hover:bg-blue-600'
             }`} 
             onClick={handleClick}

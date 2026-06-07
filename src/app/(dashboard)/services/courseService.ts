@@ -41,7 +41,6 @@ class CourseService {
     async create(data: CreateCourseData): Promise<Course> {
         const response = await axiosClient.post<Course>('/courses', {
             title: data.name,
-            name: data.name,
             description: data.description,
             professor_id: data.professor_id,
         });
@@ -56,7 +55,6 @@ class CourseService {
 
         if (data.name !== undefined) {
             body.title = data.name;
-            body.name = data.name;
         }
         if (data.description !== undefined) {
             body.description = data.description;

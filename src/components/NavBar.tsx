@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
 export default function NavBar() {
     const router = useRouter();
+    const { isAdmin, canManageCourses } = useAuth();
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
@@ -28,9 +30,11 @@ export default function NavBar() {
             </div>
 
             <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex gap-10">
-                <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Challenges</a>
-                <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Community</a>
+                <Link href="/feed" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Feed</Link>
                 <Link href="/courses" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Courses</Link>
+                {(isAdmin || canManageCourses) && (
+                    <Link href="/ejercicios/manage" className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer">Manage Exercises</Link>
+                )}
             </div>
 
             <div className="flex gap-4 items-center">

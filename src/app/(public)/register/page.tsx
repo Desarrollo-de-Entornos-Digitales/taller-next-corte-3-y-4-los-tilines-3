@@ -15,21 +15,8 @@ export default function Register() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [role, setRole] = useState('');
-
-    useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                const data = await getRoles();
-                setRoles(data);
-                if (data.length > 0) setRole(data[0].name);
-            } catch (err) {
-                console.error('Error fetching roles:', err);
-            }
-        };
-        fetchRoles();
-    }, []);
+    // Roles hardcoded to guarantee they are available for registration
+    // even if backend takes time to respond or is empty
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -106,14 +93,13 @@ export default function Register() {
                             <label className="text-sm font-medium text-gray-700">Rol</label>
                             <select
                                 name="roleName"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                className="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-50 text-gray-700"
+                                defaultValue="ESTUDIANTE"
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
                                 required
                             >
-                                {roles.map((r) => (
-                                    <option key={r.id} value={r.name}>{r.name}</option>
-                                ))}
+                                <option value="ESTUDIANTE">Estudiante</option>
+                                <option value="PROFESOR">Profesor</option>
+                                <option value="ADMIN">Administrador</option>
                             </select>
                         </div>
 
