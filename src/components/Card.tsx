@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { FeedItem } from '../app/(dashboard)/services/feedService';
 
 interface CardProps {
@@ -9,6 +10,7 @@ interface CardProps {
   image?: string;
   buttonText?: string;
   onButtonClick?: () => void;
+  courseId?: number;
 }
 
 export default function Card({
@@ -18,7 +20,9 @@ export default function Card({
   image = 'Purple.svg',
   buttonText = 'Start',
   onButtonClick,
+  courseId,
 }: CardProps) {
+  const router = useRouter();
   // Configuración dinámica basada en el item del feed
   const displayTitle = item?.title || title;
   const displayDescription = item?.description || description;
@@ -40,9 +44,8 @@ export default function Card({
 
   const handleClick = () => {
     if (onButtonClick) onButtonClick();
-    if (item) {
-        // eslint-disable-next-line no-console
-        console.log(`Interaction with ${item.status} item:`, item);
+    if (item && courseId) {
+      router.push(`/ejercicios/course/${courseId}/module/${item.id}`);
     }
   };
 

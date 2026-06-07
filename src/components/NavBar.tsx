@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Link from 'next/link';
 
 export default function NavBar() {
     const router = useRouter();
@@ -30,6 +30,7 @@ export default function NavBar() {
             <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex gap-10">
                 <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Challenges</a>
                 <a className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Community</a>
+                <Link href="/courses" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Courses</Link>
             </div>
 
             <div className="flex gap-4 items-center">

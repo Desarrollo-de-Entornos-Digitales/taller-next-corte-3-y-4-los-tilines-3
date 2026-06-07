@@ -68,6 +68,11 @@ export default function FeedPage() {
       const data = await getFeedItems(page, 3, targetCourseId || undefined);
       setFeedData(data);
       setCurrentPage(page);
+      if (data.course_id) {
+        setSelectedCourseId(data.course_id);
+      } else if (targetCourseId) {
+        setSelectedCourseId(targetCourseId);
+      }
     } catch (err) {
       setError("Error loading modules for this course.");
     } finally {
@@ -117,13 +122,13 @@ export default function FeedPage() {
         ) : (
           <div className="space-y-12">
             {/* Sección: Pendientes */}
-            <Section title="Pending" color="bg-pink-500" items={getItemsByStatus('pending')} />
+            <Section title="Pending" color="bg-pink-500" items={getItemsByStatus('pending')} courseId={selectedCourseId ?? undefined} />
             
             {/* Sección: En Progreso */}
-            <Section title="Ongoing" color="bg-teal-500" items={getItemsByStatus('in_progress')} />
+            <Section title="Ongoing" color="bg-teal-500" items={getItemsByStatus('in_progress')} courseId={selectedCourseId ?? undefined} />
             
             {/* Sección: Completados */}
-            <Section title="Completed" color="bg-gray-800" items={getItemsByStatus('completed')} />
+            <Section title="Completed" color="bg-gray-800" items={getItemsByStatus('completed')} courseId={selectedCourseId ?? undefined} />
 
             {/* CONTROLES DE PAGINACIÓN */}
             {feedData && feedData.totalPages > 1 && (
@@ -162,7 +167,7 @@ export default function FeedPage() {
 }
 
 // Componente Interno para las secciones
-function Section({ title, color, items }: { title: string, color: string, items: FeedItem[] }) {
+function Section({ title, color, items, courseId }: { title: string, color: string, items: FeedItem[], courseId?: number }) {
   return (
     <section>
       <div className="flex items-center gap-4 mb-6">
@@ -172,7 +177,7 @@ function Section({ title, color, items }: { title: string, color: string, items:
       </div>
       {items.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {items.map(item => <Card key={item.id} item={item} />)}
+          {items.map(item => <Card key={item.id} item={item} courseId={courseId} />)}
         </div>
       ) : (
         <p className="text-gray-400 italic bg-white p-8 rounded-2xl border-2 border-dashed border-gray-100 text-center">

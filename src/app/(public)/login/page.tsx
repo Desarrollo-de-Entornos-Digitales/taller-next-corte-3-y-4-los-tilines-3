@@ -6,11 +6,57 @@ import { useState } from 'react';
 import EmailInput from '@/common/components/emailInput';
 import PasswordInput from '@/common/components/passwordInput';
 import Button from '@/common/components/Button';
+import { useAuth } from '@/context/AuthContext';
 
 import { loginService } from './services/login.service';
 
+function decodeJwtPayload(token: string): Record<string, any> | null {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    try {
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+        const payload = atob(padded);
+        return JSON.parse(payload) as Record<string, any>;
+    } catch {
+        return null;
+    }
+}
+
+function resolveRoleName(source: Record<string, any> | null | undefined): string {
+    if (!source) return '';
+
+    const directRole =
+        source.roleName ??
+        source.role_name ??
+        source.role ??
+        source.role?.name ??
+        source.role?.slug ??
+        source.role?.title;
+
+    if (typeof directRole === 'string' && directRole.trim()) {
+        return directRole.toLowerCase();
+    }
+
+    const roles = source.roles ?? source.authorities;
+    if (Array.isArray(roles) && roles.length > 0) {
+        const firstRole = roles[0];
+        if (typeof firstRole === 'string') return firstRole.toLowerCase();
+        if (firstRole && typeof firstRole === 'object') {
+            const nestedRole = firstRole.name ?? firstRole.slug ?? firstRole.title;
+            if (typeof nestedRole === 'string' && nestedRole.trim()) {
+                return nestedRole.toLowerCase();
+            }
+        }
+    }
+
+    return '';
+}
+
 export default function Login() {
     const router = useRouter();
+    const { setAuthData } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -26,18 +72,45 @@ export default function Login() {
         try {
             const response = await loginService.login(email, password);
             console.info('Login success:', response.data);
-            
-            // Guardamos el token y la info del usuario
-            const token = response.data.access_token || response.data.token;
-            if (token) {
-                localStorage.setItem('access_token', token);
-                if (response.data.user) {
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                }
-                router.push('/feed');
-            } else {
+
+            const token =
+                response.data?.access_token ??
+                response.data?.token ??
+                response.data?.data?.access_token ??
+                response.data?.data?.token ??
+                response.data?.data?.accessToken ??
+                response.data?.accessToken;
+
+            if (!token) {
                 setError('No se recibió un token válido del servidor.');
+                return;
             }
+
+            const rawUser =
+                response.data?.user ??
+                response.data?.data?.user ??
+                response.data?.data ??
+                response.data?.account ??
+                response.data?.profile ??
+                response.data;
+
+            const tokenPayload = decodeJwtPayload(token);
+            const roleName = resolveRoleName(rawUser) || resolveRoleName(tokenPayload);
+
+            if (rawUser) {
+                const normalizedUser = {
+                    ...rawUser,
+                    roleName,
+                };
+                setAuthData(token, normalizedUser);
+            } else {
+                localStorage.setItem('access_token', token);
+                if (roleName) {
+                    localStorage.setItem('user', JSON.stringify({ roleName }));
+                }
+            }
+
+            router.push('/feed');
         } catch (err: any) {
             console.error('Login error:', err);
             if (err.response) {
@@ -76,7 +149,7 @@ export default function Login() {
                         </div>
 
                         <div className="mt-2 text-center w-full [&_button]:w-full [&_button]:bg-blue-600 [&_button]:text-white [&_button]:border-none [&_button]:hover:bg-blue-700 [&_button]:rounded-lg">
-                            <Button name={isLoading ? "Signing in..." : "Sign In"} />
+                            <Button name={isLoading ? 'Signing in...' : 'Sign In'} />
                         </div>
                     </form>
 

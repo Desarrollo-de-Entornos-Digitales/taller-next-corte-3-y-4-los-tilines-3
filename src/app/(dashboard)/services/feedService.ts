@@ -16,6 +16,7 @@ export interface FeedResponse {
   page: number;
   limit: number;
   totalPages: number;
+  course_id?: number;
 }
 
 /**
