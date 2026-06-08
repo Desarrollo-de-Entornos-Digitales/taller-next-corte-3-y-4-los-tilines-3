@@ -138,9 +138,7 @@ export default function CaminoPath({
                                                   ? 'En curso · tocar'
                                                   : 'Bloqueado'}
                                         </p>
-                                        {node.meta && (
-                                            <p className="text-[10px] text-gray-400 mt-1">{node.meta}</p>
-                                        )}
+                                        {node.meta && <p className="text-[10px] text-gray-400 mt-1">{node.meta}</p>}
                                     </div>
                                 </div>
 

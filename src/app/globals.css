@@ -1,4 +1,9 @@
 @import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-poppins);
+}
+
 @plugin "daisyui" {
     themes: light --default;
 }

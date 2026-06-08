@@ -3,20 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
+import ManagementLayout from '@/components/ManagementLayout';
 import { useAuth } from '@/context/AuthContext';
+
 import { courseService, Course } from '../services/courseService';
 
 // ─── palette helpers ─────────────────────────────────────────────────────────
-const CARD_COLORS = [
-    'bg-pink-500',
-    'bg-purple-600',
-    'bg-yellow-400',
-    'bg-teal-500',
-    'bg-blue-500',
-    'bg-orange-400',
-];
+const CARD_COLORS = ['bg-[#FFEBEE]', 'bg-[#F3E5F5]', 'bg-[#FFF8E1]', 'bg-[#E0F2F1]', 'bg-[#E3F2FD]', 'bg-[#FFF3E0]'];
 const colorFor = (index: number) => CARD_COLORS[index % CARD_COLORS.length];
 
 // ─── Delete confirmation modal ────────────────────────────────────────────────
@@ -36,15 +29,11 @@ function DeleteModal({
             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Course</h3>
                 <p className="text-gray-600 mb-6">
-                    Are you sure you want to delete{' '}
-                    <span className="font-semibold text-gray-900">"{course.name}"</span>? This action cannot be undone.
+                    Are you sure you want to delete <span className="font-semibold text-gray-900">"{course.name}"</span>
+                    ? This action cannot be undone.
                 </p>
                 <div className="flex gap-3 justify-end">
-                    <button
-                        onClick={onCancel}
-                        disabled={loading}
-                        className="btn btn-ghost"
-                    >
+                    <button onClick={onCancel} disabled={loading} className="btn btn-ghost">
                         Cancel
                     </button>
                     <button
@@ -153,7 +142,9 @@ export default function CoursesPage() {
 
         try {
             const parsedUser = JSON.parse(storedUser);
-            const roleName = String(parsedUser?.roleName ?? parsedUser?.role ?? parsedUser?.role_name ?? '').toLowerCase();
+            const roleName = String(
+                parsedUser?.roleName ?? parsedUser?.role ?? parsedUser?.role_name ?? '',
+            ).toLowerCase();
             setStoredCanManageCourses(roleName === 'admin' || roleName === 'professor' || roleName === 'profesor');
         } catch {
             setStoredCanManageCourses(false);
@@ -180,10 +171,8 @@ export default function CoursesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <NavBar />
-
-            <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
+        <ManagementLayout>
+            <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
                     <div>
@@ -211,7 +200,12 @@ export default function CoursesPage() {
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center justify-between">
                         <span>⚠️ {error}</span>
-                        <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 font-bold ml-4">✕</button>
+                        <button
+                            onClick={() => setError(null)}
+                            className="text-red-400 hover:text-red-600 font-bold ml-4"
+                        >
+                            ✕
+                        </button>
                     </div>
                 )}
 
@@ -311,8 +305,6 @@ export default function CoursesPage() {
                     loading={deleteLoading}
                 />
             )}
-
-            <Footer />
-        </div>
+        </ManagementLayout>
     );
 }

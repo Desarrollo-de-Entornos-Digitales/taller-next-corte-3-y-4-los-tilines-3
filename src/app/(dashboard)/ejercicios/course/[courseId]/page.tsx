@@ -74,10 +74,7 @@ export default function CourseLearningPage() {
             state: module.caminoState,
             progress: module.progress,
             meta: `${module.exercisesCompleted ?? 0}/${module.exerciseCount} ejercicios`,
-            href:
-                module.caminoState !== 'locked'
-                    ? `/ejercicios/course/${courseId}/module/${module.id}`
-                    : undefined,
+            href: module.caminoState !== 'locked' ? `/ejercicios/course/${courseId}/module/${module.id}` : undefined,
         }));
     }, [hub, courseId]);
 
@@ -101,9 +98,7 @@ export default function CourseLearningPage() {
                 )}
 
                 {error && !loading && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
-                        {error}
-                    </div>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">{error}</div>
                 )}
 
                 {!loading && hub && (
@@ -206,10 +201,7 @@ export default function CourseLearningPage() {
 
                                             <div className="card-actions mt-4">
                                                 {module.caminoState === 'locked' ? (
-                                                    <button
-                                                        disabled
-                                                        className="btn btn-disabled btn-sm border-none"
-                                                    >
+                                                    <button disabled className="btn btn-disabled btn-sm border-none">
                                                         Completa el módulo anterior
                                                     </button>
                                                 ) : (

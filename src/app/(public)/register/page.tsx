@@ -8,8 +8,9 @@ import PasswordInput from '@/common/components/passwordInput';
 import Button from '@/common/components/Button';
 import Input from '@/common/components/Input';
 
-import { registerService } from './services/register.service';
 import { getRoles, Role } from '../../services/roleService';
+
+import { registerService } from './services/register.service';
 
 export default function Register() {
     const router = useRouter();
@@ -37,7 +38,7 @@ export default function Register() {
             router.push('/login');
         } catch (err: any) {
             console.error('Registration error details:', err);
-            
+
             if (err.response) {
                 const message = err.response.data?.message || 'Error en el registro. Verifica los datos.';
                 setError(Array.isArray(message) ? message.join(', ') : message);
@@ -58,7 +59,10 @@ export default function Register() {
                     <h1 className="text-4xl font-bold text-gray-900 mb-6">Let&apos;s get you started!</h1>
 
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                        <div
+                            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+                            role="alert"
+                        >
                             <span className="block sm:inline">{error}</span>
                         </div>
                     )}
@@ -86,7 +90,12 @@ export default function Register() {
 
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">Bio</label>
-                            <Input name="bio" placeholder="Cuéntanos sobre ti" className="bg-gray-50 border-gray-200" required />
+                            <Input
+                                name="bio"
+                                placeholder="Cuéntanos sobre ti"
+                                className="bg-gray-50 border-gray-200"
+                                required
+                            />
                         </div>
 
                         <div className="flex flex-col gap-2">
@@ -115,7 +124,7 @@ export default function Register() {
                         </div>
 
                         <div className="mt-4 text-center w-full [&_button]:w-full [&_button]:bg-blue-600 [&_button]:text-white [&_button]:border-none [&_button]:hover:bg-blue-700 [&_button]:rounded-lg">
-                            <Button name={isLoading ? "Creando cuenta..." : "Create account"} />
+                            <Button name={isLoading ? 'Creando cuenta...' : 'Create account'} />
                         </div>
                     </form>
                 </div>

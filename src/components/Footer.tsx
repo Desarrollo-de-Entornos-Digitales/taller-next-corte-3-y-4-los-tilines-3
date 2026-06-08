@@ -4,7 +4,14 @@ export default function Footer() {
     return (
         <footer className="footer sm:footer-horizontal p-10 text-white mt-auto" style={{ backgroundColor: '#1E3A8A' }}>
             <aside className="flex flex-col gap-4">
-                <Image src="/Otly-logo.svg" alt="otly logo" width={140} height={40} className="brightness-0 invert" style={{ height: 'auto' }} />
+                <Image
+                    src="/Otly-logo.svg"
+                    alt="otly logo"
+                    width={140}
+                    height={40}
+                    className="brightness-0 invert"
+                    style={{ height: 'auto' }}
+                />
                 <p className="text-white/80 max-w-xs">
                     © 2026 Otly. All rights reserved.
                     <br />

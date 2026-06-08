@@ -87,13 +87,9 @@ const exerciseTypeLabel: Record<string, string> = {
     SYNTAX: 'Detective',
 };
 
-export const getExerciseTypeLabel = (type: string) =>
-    exerciseTypeLabel[type.toUpperCase()] ?? type;
+export const getExerciseTypeLabel = (type: string) => exerciseTypeLabel[type.toUpperCase()] ?? type;
 
-export const getCourseLearningHub = async (
-    courseId: number,
-    userId?: number
-): Promise<CourseLearningHub> => {
+export const getCourseLearningHub = async (courseId: number, userId?: number): Promise<CourseLearningHub> => {
     const response = await axiosClient.get<CourseLearningHub>(`/modules/course/${courseId}/learning`, {
         params: userId ? { user_id: userId } : undefined,
     });
@@ -118,7 +114,7 @@ export const getArenaExercise = async (exerciseId: number): Promise<ArenaExercis
 export const submitExerciseAnswer = async (
     exerciseId: number,
     userId: number,
-    answer: string
+    answer: string,
 ): Promise<SubmitExerciseResult> => {
     const response = await axiosClient.post<SubmitExerciseResult>(`/exercise/${exerciseId}/submit`, {
         user_id: userId,
@@ -127,7 +123,7 @@ export const submitExerciseAnswer = async (
     return response.data;
 };
 
-export const shuffle = <T,>(arr: T[]): T[] => {
+export const shuffle = <T>(arr: T[]): T[] => {
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

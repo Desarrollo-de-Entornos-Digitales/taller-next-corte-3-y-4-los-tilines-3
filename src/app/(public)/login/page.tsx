@@ -175,9 +175,7 @@ export default function Login() {
                 </div>
             </div>
 
-            <div className="hidden md:flex md:w-1/2 items-center justify-center relative">
-                {/* Space for image */}
-            </div>
+            <div className="hidden md:flex md:w-1/2 items-center justify-center relative">{/* Space for image */}</div>
         </div>
     );
 }

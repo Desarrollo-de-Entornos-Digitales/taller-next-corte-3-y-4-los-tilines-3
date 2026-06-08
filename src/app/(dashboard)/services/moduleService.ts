@@ -28,6 +28,11 @@ class ModuleService {
         return response.data;
     }
 
+    async getByCourseId(courseId: number): Promise<ModuleEntity[]> {
+        const response = await axiosClient.get<ModuleEntity[]>(`/modules/course/${courseId}`);
+        return response.data;
+    }
+
     async getById(id: number): Promise<ModuleEntity> {
         const response = await axiosClient.get<ModuleEntity>(`/modules/${id}`);
         return response.data;

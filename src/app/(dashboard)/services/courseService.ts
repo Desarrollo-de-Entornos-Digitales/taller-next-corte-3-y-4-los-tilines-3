@@ -69,7 +69,7 @@ class CourseService {
 
     async remove(id: number, professorId: number): Promise<{ message: string }> {
         const response = await axiosClient.delete<{ message: string }>(
-            `/courses/${id}/soft-remove?professor_id=${professorId}`
+            `/courses/${id}/soft-remove?professor_id=${professorId}`,
         );
         return response.data;
     }

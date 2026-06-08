@@ -7,11 +7,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ArenaPlayer from '@/components/arena/ArenaPlayer';
-import {
-    ArenaExercise,
-    getArenaExercise,
-    getArenaExercisesByModule,
-} from '@/app/(dashboard)/services/exerciseService';
+import { ArenaExercise, getArenaExercise, getArenaExercisesByModule } from '@/app/(dashboard)/services/exerciseService';
 
 export default function ArenaPageClient() {
     const params = useParams();
@@ -78,11 +74,9 @@ export default function ArenaPageClient() {
     const currentIndex = siblings.findIndex((item) => item.id === exerciseId);
     const prevExerciseId = currentIndex > 0 ? siblings[currentIndex - 1]?.id : null;
     const nextExerciseId =
-        currentIndex >= 0 && currentIndex < siblings.length - 1
-            ? siblings[currentIndex + 1]?.id
-            : null;
+        currentIndex >= 0 && currentIndex < siblings.length - 1 ? siblings[currentIndex + 1]?.id : null;
 
-    const resolvedModuleId = moduleId ? Number(moduleId) : exercise?.module_id ?? undefined;
+    const resolvedModuleId = moduleId ? Number(moduleId) : (exercise?.module_id ?? undefined);
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">

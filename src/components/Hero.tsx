@@ -6,10 +6,10 @@ interface HeroProps {
     description?: string;
 }
 
-export default function Hero({ 
-    isDashboard = false, 
-    username = 'User', 
-    description = 'Practice algorithms through interactive exercises designed to help you truly understand programming logic.' 
+export default function Hero({
+    isDashboard = false,
+    username = 'User',
+    description = 'Practice algorithms through interactive exercises designed to help you truly understand programming logic.',
 }: HeroProps) {
     return (
         <div
@@ -22,18 +22,14 @@ export default function Hero({
                         <>
                             <h2 className="text-3xl font-medium mb-2 opacity-90">Welcome back!</h2>
                             <h1 className="text-6xl font-black mb-4">{username}</h1>
-                            <p className="py-2 text-lg italic text-white/70">
-                                Ready to solve something new today?
-                            </p>
+                            <p className="py-2 text-lg italic text-white/70">Ready to solve something new today?</p>
                         </>
                     ) : (
                         <>
                             <h1 className="text-5xl font-bold mb-4">
                                 Programming can actually be <span className="font-black">fun.</span>
                             </h1>
-                            <p className="py-4 text-base italic text-white/80">
-                                {description}
-                            </p>
+                            <p className="py-4 text-base italic text-white/80">{description}</p>
                             <button className="btn btn-primary mt-2">Let&apos;s begin</button>
                         </>
                     )}

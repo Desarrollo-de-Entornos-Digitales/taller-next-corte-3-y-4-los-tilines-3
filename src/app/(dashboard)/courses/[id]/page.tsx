@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/context/AuthContext';
+
 import { courseService, Course } from '../../services/courseService';
 import { getProfessors, UserBrief } from '../../services/userService';
 
@@ -36,10 +37,7 @@ export default function CourseDetailPage() {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const canEdit =
-        canManageCourses &&
-        course &&
-        (isAdmin || course.professor_id === user?.id);
+    const canEdit = canManageCourses && course && (isAdmin || course.professor_id === user?.id);
 
     useEffect(() => {
         if (!courseId || Number.isNaN(courseId)) {
@@ -113,9 +111,7 @@ export default function CourseDetailPage() {
                 )}
 
                 {error && !loading && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
-                        {error}
-                    </div>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">{error}</div>
                 )}
 
                 {!loading && course && (
@@ -126,9 +122,7 @@ export default function CourseDetailPage() {
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
                                 <div>
                                     <h1 className="text-3xl font-black text-gray-900">{course.name}</h1>
-                                    <p className="text-gray-500 mt-1">
-                                        Created {formatDate(course.created_at)}
-                                    </p>
+                                    <p className="text-gray-500 mt-1">Created {formatDate(course.created_at)}</p>
                                 </div>
 
                                 {canEdit && (
@@ -204,8 +198,8 @@ export default function CourseDetailPage() {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Course</h3>
                         <p className="text-gray-600 mb-6">
                             Are you sure you want to delete{' '}
-                            <span className="font-semibold text-gray-900">&quot;{course.name}&quot;</span>?
-                            This action cannot be undone.
+                            <span className="font-semibold text-gray-900">&quot;{course.name}&quot;</span>? This action
+                            cannot be undone.
                         </p>
                         <div className="flex gap-3 justify-end">
                             <button
@@ -220,11 +214,7 @@ export default function CourseDetailPage() {
                                 disabled={deleteLoading}
                                 className="btn bg-red-500 hover:bg-red-600 text-white border-none"
                             >
-                                {deleteLoading ? (
-                                    <span className="loading loading-spinner loading-sm" />
-                                ) : (
-                                    'Delete'
-                                )}
+                                {deleteLoading ? <span className="loading loading-spinner loading-sm" /> : 'Delete'}
                             </button>
                         </div>
                     </div>

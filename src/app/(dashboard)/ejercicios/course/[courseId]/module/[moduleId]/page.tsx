@@ -106,7 +106,7 @@ export default function ModuleLearningPage() {
     const moduleProgress =
         module && module.exerciseCount > 0
             ? Math.round(((module.exercisesCompleted ?? 0) / module.exerciseCount) * 100)
-            : module?.progress ?? 0;
+            : (module?.progress ?? 0);
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -128,9 +128,7 @@ export default function ModuleLearningPage() {
                 )}
 
                 {error && !loading && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
-                        {error}
-                    </div>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">{error}</div>
                 )}
 
                 {!loading && module && (
@@ -174,8 +172,7 @@ export default function ModuleLearningPage() {
                                     {exercises.map((exercise, index) => {
                                         const hubExercise = module.exercises.find((e) => e.id === exercise.id);
                                         const firstIncomplete = module.exercises.findIndex((e) => !e.completed);
-                                        const isLocked =
-                                            firstIncomplete !== -1 && index > firstIncomplete;
+                                        const isLocked = firstIncomplete !== -1 && index > firstIncomplete;
 
                                         return (
                                             <Link
@@ -197,7 +194,9 @@ export default function ModuleLearningPage() {
                                                     </span>
                                                     <div>
                                                         <h3 className="font-bold text-gray-900">{exercise.title}</h3>
-                                                        <p className="text-sm text-gray-500 mt-1">{exercise.description}</p>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            {exercise.description}
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <span className="badge bg-[#4A86F7] text-white border-none">

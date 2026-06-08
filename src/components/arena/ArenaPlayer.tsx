@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-    ArenaExercise,
-    getExerciseTypeLabel,
-    submitExerciseAnswer,
-} from '@/app/(dashboard)/services/exerciseService';
+import { ArenaExercise, getExerciseTypeLabel, submitExerciseAnswer } from '@/app/(dashboard)/services/exerciseService';
 import { shuffle } from '@/components/arena/exerciseUtils';
 
 type Feedback = 'idle' | 'success' | 'error';
@@ -46,9 +42,7 @@ export default function ArenaPlayer({
 
     const [codeDraft, setCodeDraft] = useState(exercise.starterCode ?? '');
     const [mcqPick, setMcqPick] = useState<number | null>(null);
-    const [orderLines, setOrderLines] = useState<string[]>(() =>
-        shuffle(exercise.orderLines ?? [])
-    );
+    const [orderLines, setOrderLines] = useState<string[]>(() => shuffle(exercise.orderLines ?? []));
     const [syntaxPick, setSyntaxPick] = useState<number | null>(null);
 
     useEffect(() => {
@@ -279,9 +273,7 @@ export default function ArenaPlayer({
                                             <button
                                                 type="button"
                                                 className="rounded-full bg-white px-2 py-1 text-xs font-bold text-gray-600 ring-1 ring-gray-200"
-                                                onClick={() =>
-                                                    idx < orderLines.length - 1 && moveLine(idx, idx + 1)
-                                                }
+                                                onClick={() => idx < orderLines.length - 1 && moveLine(idx, idx + 1)}
                                             >
                                                 ↓
                                             </button>
@@ -299,9 +291,7 @@ export default function ArenaPlayer({
                                         type="button"
                                         onClick={() => setSyntaxPick(line.id)}
                                         className={`flex w-full rounded-xl px-2 py-1.5 text-left transition ${
-                                            syntaxPick === line.id
-                                                ? 'bg-[#4A86F7]/50 text-white'
-                                                : 'hover:bg-white/10'
+                                            syntaxPick === line.id ? 'bg-[#4A86F7]/50 text-white' : 'hover:bg-white/10'
                                         }`}
                                     >
                                         <span className="mr-2 text-gray-500">{line.id + 1}.</span>
@@ -320,11 +310,7 @@ export default function ArenaPlayer({
                             disabled={!canSubmit || submitting}
                             className="btn bg-[#4A86F7] hover:bg-blue-600 text-white border-none px-8 disabled:opacity-40"
                         >
-                            {submitting ? (
-                                <span className="loading loading-spinner loading-sm" />
-                            ) : (
-                                'Enviar solución'
-                            )}
+                            {submitting ? <span className="loading loading-spinner loading-sm" /> : 'Enviar solución'}
                         </button>
                     </div>
                 </section>

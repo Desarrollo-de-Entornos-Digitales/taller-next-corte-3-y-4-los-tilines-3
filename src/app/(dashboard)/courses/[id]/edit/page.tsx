@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/context/AuthContext';
+
 import { courseService, Course } from '../../../services/courseService';
 import { getProfessors, UserBrief } from '../../../services/userService';
 
@@ -27,10 +28,7 @@ export default function EditCoursePage() {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const canEdit =
-        canManageCourses &&
-        course &&
-        (isAdmin || course.professor_id === user?.id);
+    const canEdit = canManageCourses && course && (isAdmin || course.professor_id === user?.id);
 
     useEffect(() => {
         if (!courseId || Number.isNaN(courseId)) {
@@ -141,9 +139,7 @@ export default function EditCoursePage() {
                 {!pageLoading && canManageCourses && course && !canEdit && (
                     <div className="bg-white rounded-3xl p-12 text-center">
                         <h3 className="text-xl font-bold">Access denied</h3>
-                        <p className="text-gray-500 mt-2">
-                            You can only edit courses assigned to you.
-                        </p>
+                        <p className="text-gray-500 mt-2">You can only edit courses assigned to you.</p>
                     </div>
                 )}
 
@@ -172,9 +168,7 @@ export default function EditCoursePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    Description
-                                </label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -212,9 +206,7 @@ export default function EditCoursePage() {
                                             <input
                                                 value={professorId}
                                                 onChange={(e) =>
-                                                    setProfessorId(
-                                                        e.target.value === '' ? '' : Number(e.target.value)
-                                                    )
+                                                    setProfessorId(e.target.value === '' ? '' : Number(e.target.value))
                                                 }
                                                 type="number"
                                                 className="w-48 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -229,10 +221,7 @@ export default function EditCoursePage() {
                             )}
 
                             <div className="flex items-center gap-3 justify-end">
-                                <Link
-                                    href={`/courses/${course.id}`}
-                                    className="btn btn-ghost"
-                                >
+                                <Link href={`/courses/${course.id}`} className="btn btn-ghost">
                                     Cancel
                                 </Link>
                                 <button
@@ -252,9 +241,7 @@ export default function EditCoursePage() {
                 )}
 
                 {!pageLoading && error && !course && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
-                        {error}
-                    </div>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">{error}</div>
                 )}
             </main>
 
