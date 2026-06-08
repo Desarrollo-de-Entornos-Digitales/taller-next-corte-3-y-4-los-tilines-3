@@ -99,7 +99,7 @@ export default function NavBar() {
                     >
                         <li className="menu-title px-4 py-2 text-xs font-bold text-gray-400 uppercase">Account</li>
                         <li>
-                            <a>Profile</a>
+                            <Link href="/profile">Profile</Link>
                         </li>
                         <li>
                             <a>Settings</a>

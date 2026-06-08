@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { ArenaExercise, getExerciseTypeLabel, submitExerciseAnswer } from '@/app/(dashboard)/services/exerciseService';
 import { shuffle } from '@/components/arena/exerciseUtils';
+import { useProfileStore } from '@/lib/zustand/profileStore';
 
 type Feedback = 'idle' | 'success' | 'error';
 
@@ -20,10 +21,10 @@ interface ArenaPlayerProps {
 }
 
 const typeColors: Record<string, string> = {
-    MULTIPLE_CHOICE: 'bg-[#953DF1]',
-    CODING: 'bg-[#4A86F7]',
-    ORDER: 'bg-[#37CDB2]',
-    SYNTAX: 'bg-[#E9539A]',
+    MULTIPLE_CHOICE: '#E9539A', // Pink
+    CODING: '#953DF1', // Purple
+    ORDER: '#FFB800', // Yellow
+    SYNTAX: '#37CDB2', // Turquoise
 };
 
 export default function ArenaPlayer({
@@ -36,6 +37,8 @@ export default function ArenaPlayer({
     nextExerciseId,
     prevExerciseId,
 }: ArenaPlayerProps) {
+    const addRecentActivity = useProfileStore((state) => state.addRecentActivity);
+
     const [feedback, setFeedback] = useState<Feedback>('idle');
     const [submitting, setSubmitting] = useState(false);
     const [resultMessage, setResultMessage] = useState<string | null>(null);
@@ -45,17 +48,8 @@ export default function ArenaPlayer({
     const [orderLines, setOrderLines] = useState<string[]>(() => shuffle(exercise.orderLines ?? []));
     const [syntaxPick, setSyntaxPick] = useState<number | null>(null);
 
-    useEffect(() => {
-        setFeedback('idle');
-        setResultMessage(null);
-        setMcqPick(null);
-        setSyntaxPick(null);
-        setCodeDraft(exercise.starterCode ?? '');
-        setOrderLines(shuffle(exercise.orderLines ?? []));
-    }, [exercise.id, exercise.starterCode, exercise.orderLines]);
-
     const typeLabel = getExerciseTypeLabel(exercise.exercise_type);
-    const accentClass = typeColors[exercise.exercise_type] ?? 'bg-[#4A86F7]';
+    const accentColor = (typeColors[exercise.exercise_type] as string) || '#4A86F7';
 
     const backHref =
         moduleId && courseId
@@ -65,21 +59,6 @@ export default function ArenaPlayer({
               : courseId
                 ? `/ejercicios/course/${courseId}`
                 : '/feed';
-
-    const buildAnswer = (): string | null => {
-        switch (exercise.exercise_type) {
-            case 'MULTIPLE_CHOICE':
-                return mcqPick !== null ? String(mcqPick) : null;
-            case 'CODING':
-                return codeDraft.trim() ? codeDraft : null;
-            case 'ORDER':
-                return JSON.stringify(orderLines);
-            case 'SYNTAX':
-                return syntaxPick !== null ? String(syntaxPick) : null;
-            default:
-                return null;
-        }
-    };
 
     const canSubmit = useMemo(() => {
         switch (exercise.exercise_type) {
@@ -97,7 +76,25 @@ export default function ArenaPlayer({
     }, [exercise.exercise_type, mcqPick, codeDraft, orderLines, syntaxPick]);
 
     const handleSubmit = useCallback(async () => {
-        const answer = buildAnswer();
+        let answer: string | null = null;
+
+        switch (exercise.exercise_type) {
+            case 'MULTIPLE_CHOICE':
+                answer = mcqPick !== null ? String(mcqPick) : null;
+                break;
+            case 'CODING':
+                answer = codeDraft.trim() ? codeDraft : null;
+                break;
+            case 'ORDER':
+                answer = JSON.stringify(orderLines);
+                break;
+            case 'SYNTAX':
+                answer = syntaxPick !== null ? String(syntaxPick) : null;
+                break;
+            default:
+                answer = null;
+        }
+
         if (!answer || submitting) return;
 
         try {
@@ -105,6 +102,21 @@ export default function ArenaPlayer({
             const result = await submitExerciseAnswer(exercise.id, userId, answer);
             setFeedback(result.correct ? 'success' : 'error');
             setResultMessage(result.correct ? result.feedback : `${result.feedback} ${result.explanation}`);
+
+            addRecentActivity({
+                title: result.correct ? `Completaste "${exercise.title}"` : `Intentaste "${exercise.title}"`,
+                description: result.correct
+                    ? `Ganaste ${result.pointsEarned} puntos en Arena`
+                    : 'Respuesta enviada, revisa la explicacion para mejorar',
+                href: `/ejercicios/arena/${exercise.id}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`,
+                icon: result.correct ? 'check' : 'play',
+                color: accentColor,
+            });
+
+            if (result.correct) {
+                window.dispatchEvent(new CustomEvent('otly-activity-update'));
+            }
+
             window.setTimeout(() => {
                 setFeedback('idle');
                 setResultMessage(null);
@@ -115,7 +127,20 @@ export default function ArenaPlayer({
         } finally {
             setSubmitting(false);
         }
-    }, [exercise.id, userId, submitting, buildAnswer]);
+    }, [
+        addRecentActivity,
+        codeDraft,
+        courseId,
+        exercise.exercise_type,
+        exercise.id,
+        exercise.title,
+        mcqPick,
+        moduleId,
+        orderLines,
+        submitting,
+        syntaxPick,
+        userId,
+    ]);
 
     const moveLine = (from: number, to: number) => {
         setOrderLines((prev) => {
@@ -187,7 +212,12 @@ export default function ArenaPlayer({
                     </p>
 
                     <div className="mt-6 flex flex-wrap gap-2">
-                        <span className={`badge badge-lg text-white border-none ${accentClass}`}>{typeLabel}</span>
+                        <span
+                            className="badge badge-lg text-white border-none"
+                            style={{ backgroundColor: accentColor }}
+                        >
+                            {typeLabel}
+                        </span>
                         <span className="badge badge-lg bg-gray-100 text-gray-700 border-none">
                             {exercise.language?.toUpperCase() ?? 'Código'}
                         </span>
@@ -216,7 +246,9 @@ export default function ArenaPlayer({
                         <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                             Zona de práctica
                         </span>
-                        <span className={`badge text-white border-none ${accentClass}`}>{typeLabel}</span>
+                        <span className="badge text-white border-none" style={{ backgroundColor: accentColor }}>
+                            {typeLabel}
+                        </span>
                     </div>
 
                     <div className="flex flex-1 flex-col gap-4 p-5">
@@ -225,7 +257,7 @@ export default function ArenaPlayer({
                                 value={codeDraft}
                                 onChange={(e) => setCodeDraft(e.target.value)}
                                 spellCheck={false}
-                                className="min-h-[240px] w-full resize-y rounded-2xl border border-gray-200 bg-[#1a1f2e] p-4 font-mono text-sm leading-relaxed text-[#e2e8f0] outline-none focus:border-[#4A86F7]"
+                                className="min-h-60 w-full resize-y rounded-2xl border border-gray-200 bg-[#1a1f2e] p-4 font-mono text-sm leading-relaxed text-[#e2e8f0] outline-none focus:border-[#4A86F7]"
                             />
                         )}
 
@@ -306,7 +338,7 @@ export default function ArenaPlayer({
                         <p className="text-xs text-gray-400">Feedback inmediato al enviar</p>
                         <button
                             type="button"
-                            onClick={handleSubmit}
+                            onClick={() => void handleSubmit()}
                             disabled={!canSubmit || submitting}
                             className="btn bg-[#4A86F7] hover:bg-blue-600 text-white border-none px-8 disabled:opacity-40"
                         >

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
+import { useProfileStore } from '@/lib/zustand/profileStore';
+
 import {
     getExerciseById,
     getExerciseOptions,
@@ -30,6 +32,7 @@ export default function StudentArenaPage() {
     // Feedback state
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
+    const addRecentActivity = useProfileStore((state) => state.addRecentActivity);
 
     useEffect(() => {
         if (!exerciseId) return;
@@ -108,6 +111,15 @@ export default function StudentArenaPage() {
                 score: correct ? exercise.points : 0,
                 attempt_date: new Date().toISOString(),
             });
+
+            addRecentActivity({
+                title: correct ? `Completaste "${exercise.title}"` : `Intentaste "${exercise.title}"`,
+                description: correct
+                    ? `Ganaste ${exercise.points} puntos`
+                    : 'Respuesta enviada, revisa la explicacion para mejorar',
+                href: `/arena/${exercise.id}`,
+            });
+
             setIsSubmitted(true);
         } catch (err) {
             console.error('Failed to register attempt', err);
@@ -161,7 +173,7 @@ export default function StudentArenaPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Columna Izquierda: Instrucciones */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white rounded-[2rem] p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full">
+                        <div className="bg-white rounded-4xl p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full">
                             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                                 <span>📝</span> Instrucciones
                             </h3>
@@ -171,7 +183,7 @@ export default function StudentArenaPage() {
 
                     {/* Columna Derecha: El Reto */}
                     <div className="lg:col-span-2">
-                        <div className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-gray-100">
+                        <div className="bg-white rounded-4xl p-8 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-gray-100">
                             {!isSubmitted ? (
                                 <>
                                     <h3 className="text-xl font-bold text-gray-900 mb-6">Tu Respuesta</h3>
