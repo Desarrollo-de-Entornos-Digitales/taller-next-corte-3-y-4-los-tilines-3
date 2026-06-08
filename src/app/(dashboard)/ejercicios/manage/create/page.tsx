@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createExercise, CreateExerciseDto } from '../../../services/exerciseManageService';
+import { moduleService, ModuleEntity } from '../../../services/moduleService';
 import NavBar from '../../../../../components/NavBar';
 import Footer from '../../../../../components/Footer';
 
@@ -10,6 +11,7 @@ export default function CreateExercisePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modules, setModules] = useState<ModuleEntity[]>([]);
   
   const [formData, setFormData] = useState<CreateExerciseDto>({
     module_id: 1, // Default module id, user should select it
@@ -22,6 +24,21 @@ export default function CreateExercisePage() {
     starterCode: '',
     solutionCode: ''
   });
+
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const data = await moduleService.getAll();
+        setModules(data);
+        if (data.length > 0) {
+          setFormData(prev => ({ ...prev, module_id: data[0].id }));
+        }
+      } catch (err) {
+        console.error('Failed to load modules', err);
+      }
+    };
+    fetchModules();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -83,15 +100,21 @@ export default function CreateExercisePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Módulo (ID)</label>
-              <input 
+              <label className="block text-sm font-bold text-gray-700 mb-2">Módulo</label>
+              <select 
                 required
-                type="number" 
                 name="module_id"
                 value={formData.module_id}
                 onChange={handleChange}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-              />
+              >
+                {modules.length === 0 && <option value={0}>Cargando módulos...</option>}
+                {modules.map((mod) => (
+                  <option key={mod.id} value={mod.id}>
+                    {mod.title}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

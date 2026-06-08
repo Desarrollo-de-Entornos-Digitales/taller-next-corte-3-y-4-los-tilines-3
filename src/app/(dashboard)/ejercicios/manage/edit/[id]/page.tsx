@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getExerciseById, updateExercise, UpdateExerciseDto } from '../../../../services/exerciseManageService';
+import { moduleService, ModuleEntity } from '../../../../services/moduleService';
 import NavBar from '../../../../../../components/NavBar';
 import Footer from '../../../../../../components/Footer';
 
@@ -14,6 +15,7 @@ export default function EditExercisePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modules, setModules] = useState<ModuleEntity[]>([]);
   
   const [formData, setFormData] = useState<UpdateExerciseDto>({
     module_id: 1,
@@ -28,9 +30,19 @@ export default function EditExercisePage() {
   });
 
   useEffect(() => {
-    if (id) {
-      loadExercise();
-    }
+    const fetchModulesAndExercise = async () => {
+      try {
+        const modulesData = await moduleService.getAll();
+        setModules(modulesData);
+        
+        if (id) {
+          await loadExercise();
+        }
+      } catch (err) {
+        console.error('Failed to load modules', err);
+      }
+    };
+    fetchModulesAndExercise();
   }, [id]);
 
   const loadExercise = async () => {
@@ -119,15 +131,21 @@ export default function EditExercisePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Módulo (ID)</label>
-                <input 
+                <label className="block text-sm font-bold text-gray-700 mb-2">Módulo</label>
+                <select 
                   required
-                  type="number" 
                   name="module_id"
                   value={formData.module_id}
                   onChange={handleChange}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                />
+                >
+                  {modules.length === 0 && <option value={0}>Cargando módulos...</option>}
+                  {modules.map((mod) => (
+                    <option key={mod.id} value={mod.id}>
+                      {mod.title}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

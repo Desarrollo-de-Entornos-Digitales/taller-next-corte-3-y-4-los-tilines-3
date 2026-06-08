@@ -33,7 +33,10 @@ export default function NavBar() {
                 <Link href="/feed" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Feed</Link>
                 <Link href="/courses" className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer">Courses</Link>
                 {(isAdmin || canManageCourses) && (
-                    <Link href="/ejercicios/manage" className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer">Manage Exercises</Link>
+                    <>
+                        <Link href="/modules/manage" className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer">Manage Modules</Link>
+                        <Link href="/ejercicios/manage" className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer">Manage Exercises</Link>
+                    </>
                 )}
             </div>
 
