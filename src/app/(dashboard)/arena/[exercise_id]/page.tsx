@@ -58,11 +58,13 @@ export default function StudentArenaPage() {
         fetchExerciseData();
     }, [exerciseId]);
 
+    const [unlockedAchievements, setUnlockedAchievements] = useState<any[]>([]);
+    const [showAchievementModal, setShowAchievementModal] = useState(false);
+
     const handleSubmit = async () => {
         if (!exercise) return;
         setSubmitting(true);
 
-        let correct = false;
         let answerSubmitted = '';
 
         if (exercise.exercise_type === 'MULTIPLE_CHOICE') {
@@ -71,23 +73,12 @@ export default function StudentArenaPage() {
                 setSubmitting(false);
                 return;
             }
-            const selectedOpt = options.find((o) => o.id === selectedOptionId);
-            correct = selectedOpt?.is_correct || false;
-            answerSubmitted = selectedOpt?.option_text || '';
+            answerSubmitted = String(selectedOptionId);
         } else if (exercise.exercise_type === 'CODING') {
-            // Simple validation: just checking if it is not empty,
-            // ideally we would evaluate against tests or solutionCode.
-            // We'll do a simple match for demonstration.
             answerSubmitted = codeAnswer;
-            correct = codeAnswer.trim() === exercise.solutionCode?.trim();
         } else if (exercise.exercise_type === 'TRUE_FALSE') {
-            // Omitted for brevity, assuming multiple choice covers this or it's handled similarly.
-            // Will treat it as text matching.
             answerSubmitted = codeAnswer;
-            correct = codeAnswer.trim().toLowerCase() === exercise.solutionCode?.trim().toLowerCase();
         }
-
-        setIsCorrect(correct);
 
         // Simulate getting user ID from local storage or context
         const userDataStr = localStorage.getItem('user');
@@ -100,25 +91,25 @@ export default function StudentArenaPage() {
         }
 
         try {
-            await createExerciseAttempt({
-                user_id: userId,
-                exercise_id: exercise.id,
-                answerd_submited: answerSubmitted,
-                is_correct: correct,
-                feedback: correct
-                    ? '¡Excelente trabajo! Has resuelto el ejercicio correctamente.'
-                    : 'La respuesta es incorrecta. ' + exercise.explanation,
-                score: correct ? exercise.points : 0,
-                attempt_date: new Date().toISOString(),
-            });
+            // Import and use submitExerciseAnswer dynamically or ensure it's imported at the top
+            const { submitExerciseAnswer } = await import('../../services/exerciseService');
+            
+            const result = await submitExerciseAnswer(exercise.id, userId, answerSubmitted);
+
+            setIsCorrect(result.correct);
 
             addRecentActivity({
-                title: correct ? `Completaste "${exercise.title}"` : `Intentaste "${exercise.title}"`,
-                description: correct
-                    ? `Ganaste ${exercise.points} puntos`
+                title: result.correct ? `Completaste "${exercise.title}"` : `Intentaste "${exercise.title}"`,
+                description: result.correct
+                    ? `Ganaste ${result.pointsEarned} puntos`
                     : 'Respuesta enviada, revisa la explicacion para mejorar',
                 href: `/arena/${exercise.id}`,
             });
+
+            if (result.newlyUnlockedAchievements && result.newlyUnlockedAchievements.length > 0) {
+                setUnlockedAchievements(result.newlyUnlockedAchievements);
+                setShowAchievementModal(true);
+            }
 
             setIsSubmitted(true);
         } catch (err) {
@@ -327,6 +318,42 @@ export default function StudentArenaPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Achievement Unlocked Modal Animation */}
+            {showAchievementModal && unlockedAchievements.length > 0 && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform transition-all scale-100 animate-bounce-short relative text-center">
+                        {/* Confetti simulation (simple CSS based) */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">
+                            🎉
+                        </div>
+                        
+                        <h2 className="text-2xl font-black text-gray-900 mt-6 mb-2">¡Logro Desbloqueado!</h2>
+                        
+                        <div className="flex flex-col gap-4 mt-6">
+                            {unlockedAchievements.map((ach) => (
+                                <div key={ach.id} className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm mb-3">
+                                        🏆
+                                    </div>
+                                    <h3 className="font-bold text-gray-900">{ach.name}</h3>
+                                    <p className="text-xs text-gray-600 mt-1">{ach.description}</p>
+                                    <span className="mt-2 inline-block px-3 py-1 bg-blue-100 text-blue-700 font-bold text-xs rounded-full">
+                                        +{ach.points_required} XP
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button 
+                            onClick={() => setShowAchievementModal(false)}
+                            className="mt-8 w-full bg-[#4A86F7] hover:bg-blue-600 text-white font-bold py-3 rounded-full shadow-md transition-all"
+                        >
+                            ¡Genial!
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

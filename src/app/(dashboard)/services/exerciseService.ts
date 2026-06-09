@@ -34,6 +34,7 @@ export interface SubmitExerciseResult {
     feedback: string;
     explanation: string;
     pointsEarned: number;
+    newlyUnlockedAchievements?: any[];
 }
 
 export interface LearningExerciseSummary {

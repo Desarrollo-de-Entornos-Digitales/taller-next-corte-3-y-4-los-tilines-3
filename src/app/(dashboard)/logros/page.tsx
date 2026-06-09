@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { achievementsService, Achievement, UserAchievement } from '../services/achievementsService';
+import Link from 'next/link';
 
 export default function LogrosPage() {
-    const { user, token } = useAuth();
+    const { user, token, isAdmin } = useAuth();
     const [allAchievements, setAllAchievements] = useState<Achievement[]>([]);
     const [unlockedAchievements, setUnlockedAchievements] = useState<UserAchievement[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -65,11 +66,18 @@ export default function LogrosPage() {
     return (
         <div className="max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in pb-20 font-sans">
             {/* Header Section */}
-            <div>
-                <h1 className="text-3xl font-black text-[#0B1527] mb-2 tracking-tight">Mis Logros</h1>
-                <p className="text-gray-500 text-[15px] flex items-center">
-                    Cada<span className="inline-block border-b-2 border-blue-400 border-dashed mx-1 w-8"></span>logro es un paso más en tu camino para convertirte en un gran programador.
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-black text-[#0B1527] mb-2 tracking-tight">Mis Logros</h1>
+                    <p className="text-gray-500 text-[15px] flex items-center">
+                        Cada<span className="inline-block border-b-2 border-blue-400 border-dashed mx-1 w-8"></span>logro es un paso más en tu camino para convertirte en un gran programador.
+                    </p>
+                </div>
+                {isAdmin && (
+                    <Link href="/logros/manage" className="inline-flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 px-6 rounded-full transition-colors shadow-sm gap-2 text-sm whitespace-nowrap w-fit">
+                        ⚙️ Administrar Logros
+                    </Link>
+                )}
             </div>
 
             {/* Top Status Card */}
