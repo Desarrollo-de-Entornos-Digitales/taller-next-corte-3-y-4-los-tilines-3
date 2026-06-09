@@ -10,7 +10,6 @@ describe('Módulo de ejercicios', () => {
     it('Carga la página del módulo 10 del curso 1', () => {
         cy.visit('/ejercicios/course/1/module/10');
         cy.get('body').should('be.visible');
-        // Verificar que no hay mensaje de error rojo
         cy.get('.bg-red-100').should('not.exist');
     });
 
