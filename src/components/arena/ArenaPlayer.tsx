@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+import { toast } from '@/lib/zustand/toastStore';
 
 import { ArenaExercise, getExerciseTypeLabel, submitExerciseAnswer } from '@/app/(dashboard)/services/exerciseService';
 import { shuffle } from '@/components/arena/exerciseUtils';
@@ -116,6 +117,12 @@ export default function ArenaPlayer({
                 icon: result.correct ? 'check' : 'play',
                 color: accentColor,
             });
+
+            if (result.correct && result.newlyUnlockedAchievements && result.newlyUnlockedAchievements.length > 0) {
+                result.newlyUnlockedAchievements.forEach((ach: any) => {
+                    toast.success(`🏆 ¡Logro Desbloqueado: ${ach.name}!`);
+                });
+            }
 
             if (result.correct) {
                 window.dispatchEvent(new CustomEvent('otly-activity-update'));
