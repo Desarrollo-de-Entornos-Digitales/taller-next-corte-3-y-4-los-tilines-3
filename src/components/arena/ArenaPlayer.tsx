@@ -122,7 +122,9 @@ export default function ArenaPlayer({
 
                 window.setTimeout(() => {
                     if (nextExerciseId) {
-                        router.push(`/ejercicios/arena/${nextExerciseId}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`);
+                        router.push(
+                            `/ejercicios/arena/${nextExerciseId}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`,
+                        );
                     } else if (nextModuleId) {
                         router.push(`/ejercicios/course/${courseId}/module/${nextModuleId}`);
                     } else if (courseId) {
@@ -185,192 +187,201 @@ export default function ArenaPlayer({
               : 'bg-amber-50 border-amber-100';
 
     return (
-        <div className="flex flex-col gap-6">
-            <header className="rounded-3xl bg-white px-6 py-5 shadow-sm border border-gray-100">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col font-sans">
+            <header className="px-2 py-4 mb-4">
+                <div className="flex justify-between items-center">
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-[#4A86F7]">
-                            Otly Arena · {typeLabel}
+                        <p className="text-[13px] font-bold text-[#4A86F7] mb-1">
+                            Unidad {moduleId || 1} <span className="mx-2 text-gray-300">|</span> Ejercicio{' '}
+                            {exerciseIndex}
                         </p>
-                        <h1 className="mt-1 text-2xl font-black text-gray-900">{exercise.title}</h1>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Ejercicio {exerciseIndex} de {totalExercises} · {exercise.points} pts · Nivel{' '}
-                            {exercise.difficulty_level}
-                        </p>
+                        <h1 className="text-[28px] font-black text-gray-900">{exercise.title}</h1>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Link href={backHref} className="btn btn-outline btn-sm border-gray-300">
-                            Volver al módulo
-                        </Link>
-                        {prevExerciseId && (
-                            <Link
-                                href={`/ejercicios/arena/${prevExerciseId}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`}
-                                className="btn btn-ghost btn-sm"
-                            >
-                                ← Anterior
-                            </Link>
-                        )}
-                        {nextExerciseId && (
-                            <Link
-                                href={`/ejercicios/arena/${nextExerciseId}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`}
-                                className="btn bg-[#1E3A8A] hover:bg-blue-800 text-white border-none btn-sm"
-                            >
-                                Siguiente →
-                            </Link>
-                        )}
+                    <div className="flex flex-col items-end gap-1">
+                        <p className="text-[13px] text-gray-500 font-medium">
+                            <span className="inline-block mr-1">⭐</span> {exercise.points} puntos
+                        </p>
+                        <p className="text-[13px] text-gray-500 font-medium">
+                            <span className="inline-block mr-1">⏱️</span> Tiempo estimado: 3 minutos
+                        </p>
                     </div>
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <section className={`rounded-3xl border p-6 transition-all duration-500 ${briefingBg}`}>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Documentación</p>
-                    <h2 className="mt-3 text-xl font-black text-gray-900">{exercise.title}</h2>
-                    <p className="mt-3 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-                        {exercise.description}
-                    </p>
-
-                    <div className="mt-6 flex flex-wrap gap-2">
-                        <span
-                            className="badge badge-lg text-white border-none"
-                            style={{ backgroundColor: accentColor }}
-                        >
-                            {typeLabel}
-                        </span>
-                        <span className="badge badge-lg bg-gray-100 text-gray-700 border-none">
-                            {exercise.language?.toUpperCase() ?? 'Código'}
-                        </span>
-                        <span className="badge badge-lg bg-gray-100 text-gray-700 border-none">
-                            +{exercise.points} XP
-                        </span>
-                    </div>
-
-                    {resultMessage && (
-                        <div
-                            className={`mt-4 rounded-2xl px-4 py-4 text-sm font-semibold flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100 ${
-                                feedback === 'success'
-                                    ? 'bg-emerald-500/15 text-emerald-900 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
-                                    : 'bg-rose-500/15 text-rose-900 border border-rose-500/20'
-                            }`}
-                        >
-                            <span>{resultMessage}</span>
-                            {feedback === 'success' && (
-                                <span className="flex items-center gap-2 text-xs opacity-80 animate-pulse font-bold bg-emerald-100 px-3 py-1.5 rounded-full">
-                                    <span className="loading loading-dots loading-xs"></span>
-                                    {nextExerciseId ? 'Avanzando' : nextModuleId ? 'Siguiente unidad' : 'Completado'}
-                                </span>
-                            )}
+            <div className="flex flex-col lg:flex-row gap-12">
+                <div className="flex-1 flex flex-col gap-6">
+                    {/* Instructions Card */}
+                    {exercise.description && (
+                        <div>
+                            <h3 className="text-[13px] font-black text-gray-900 mb-3">Instrucciones</h3>
+                            <div className="rounded-[20px] bg-white border border-gray-100 p-6 shadow-sm">
+                                <p className="text-[14px] text-gray-700 leading-relaxed">{exercise.description}</p>
+                            </div>
                         </div>
                     )}
-                </section>
 
-                <section
-                    className={`flex flex-col rounded-3xl bg-white border border-gray-100 overflow-hidden transition-all duration-500 ${shellClass}`}
-                >
-                    <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Zona de práctica
-                        </span>
-                        <span className="badge text-white border-none" style={{ backgroundColor: accentColor }}>
-                            {typeLabel}
-                        </span>
-                    </div>
-
-                    <div className="flex flex-1 flex-col gap-4 p-5">
-                        {exercise.exercise_type === 'CODING' && (
-                            <textarea
-                                value={codeDraft}
-                                onChange={(e) => setCodeDraft(e.target.value)}
-                                spellCheck={false}
-                                className="min-h-60 w-full resize-y rounded-2xl border border-gray-200 bg-[#1a1f2e] p-4 font-mono text-sm leading-relaxed text-[#e2e8f0] outline-none focus:border-[#4A86F7]"
-                            />
-                        )}
-
-                        {exercise.exercise_type === 'MULTIPLE_CHOICE' && (
-                            <div className="space-y-3">
-                                <p className="text-base font-bold text-gray-900">{exercise.description}</p>
-                                <div className="grid gap-2">
-                                    {(exercise.options ?? []).map((option) => (
-                                        <button
-                                            key={option.id}
-                                            type="button"
-                                            onClick={() => setMcqPick(option.id)}
-                                            className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                                                mcqPick === option.id
-                                                    ? 'border-[#4A86F7] bg-blue-50 text-blue-900'
-                                                    : 'border-gray-200 bg-white hover:border-gray-300'
-                                            }`}
-                                        >
-                                            {option.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {exercise.exercise_type === 'ORDER' && (
-                            <ul className="space-y-2">
-                                {orderLines.map((line, idx) => (
-                                    <li
-                                        key={`${line}-${idx}`}
-                                        className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs md:text-sm"
-                                    >
-                                        <span className="w-6 shrink-0 text-center text-[10px] font-extrabold text-gray-400">
-                                            {idx + 1}
-                                        </span>
-                                        <span className="flex-1">{line}</span>
-                                        <div className="flex shrink-0 gap-1">
-                                            <button
-                                                type="button"
-                                                className="rounded-full bg-white px-2 py-1 text-xs font-bold text-gray-600 ring-1 ring-gray-200"
-                                                onClick={() => idx > 0 && moveLine(idx, idx - 1)}
-                                            >
-                                                ↑
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="rounded-full bg-white px-2 py-1 text-xs font-bold text-gray-600 ring-1 ring-gray-200"
-                                                onClick={() => idx < orderLines.length - 1 && moveLine(idx, idx + 1)}
-                                            >
-                                                ↓
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-
-                        {exercise.exercise_type === 'SYNTAX' && (
-                            <div className="space-y-2 rounded-2xl bg-[#1a1f2e] p-4 font-mono text-sm text-gray-100">
-                                {(exercise.syntaxLines ?? []).map((line) => (
-                                    <button
-                                        key={line.id}
-                                        type="button"
-                                        onClick={() => setSyntaxPick(line.id)}
-                                        className={`flex w-full rounded-xl px-2 py-1.5 text-left transition ${
-                                            syntaxPick === line.id ? 'bg-[#4A86F7]/50 text-white' : 'hover:bg-white/10'
-                                        }`}
-                                    >
-                                        <span className="mr-2 text-gray-500">{line.id + 1}.</span>
-                                        {line.text}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 px-5 py-4">
-                        <p className="text-xs text-gray-400">Feedback inmediato al enviar</p>
-                        <button
-                            type="button"
-                            onClick={() => void handleSubmit()}
-                            disabled={!canSubmit || submitting}
-                            className="btn bg-[#4A86F7] hover:bg-blue-600 text-white border-none px-8 disabled:opacity-40"
+                    {/* Arena Core */}
+                    <div className="flex flex-col gap-6">
+                        <h3 className="text-[13px] font-black text-gray-900 -mb-2">Completa el código</h3>
+                        <section
+                            className={`flex flex-col rounded-[20px] bg-white border p-6 transition-all duration-500 shadow-sm ${shellClass}`}
                         >
-                            {submitting ? <span className="loading loading-spinner loading-sm" /> : 'Enviar solución'}
-                        </button>
+                            <div className="flex flex-1 flex-col gap-4">
+                                {exercise.exercise_type === 'CODING' && (
+                                    <textarea
+                                        value={codeDraft}
+                                        onChange={(e) => setCodeDraft(e.target.value)}
+                                        spellCheck={false}
+                                        className="min-h-[160px] w-full resize-none rounded-xl bg-transparent font-mono text-[14px] leading-relaxed text-gray-800 outline-none"
+                                        placeholder="Escribe tu código aquí..."
+                                    />
+                                )}
+
+                                {exercise.exercise_type === 'MULTIPLE_CHOICE' && (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                            {(exercise.options ?? []).map((option) => (
+                                                <button
+                                                    key={option.id}
+                                                    type="button"
+                                                    onClick={() => setMcqPick(option.id)}
+                                                    className={`rounded-2xl border-2 py-3 px-4 text-center font-mono text-[14px] font-bold transition-all ${
+                                                        mcqPick === option.id
+                                                            ? 'border-[#D8B4FE] bg-[#F3E8FF] text-[#6B21A8]'
+                                                            : 'border-gray-100 bg-white hover:border-gray-200 text-gray-700'
+                                                    }`}
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {exercise.exercise_type === 'ORDER' && (
+                                    <ul className="space-y-2">
+                                        {orderLines.map((line, idx) => (
+                                            <li
+                                                key={`${line}-${idx}`}
+                                                className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 font-mono text-[13px] text-gray-700"
+                                            >
+                                                <span className="text-gray-400 font-bold">{idx + 1}</span>
+                                                <span className="flex-1">{line}</span>
+                                                <div className="flex shrink-0 gap-1">
+                                                    <button
+                                                        type="button"
+                                                        className="p-1 hover:bg-gray-200 rounded"
+                                                        onClick={() => idx > 0 && moveLine(idx, idx - 1)}
+                                                    >
+                                                        ↑
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="p-1 hover:bg-gray-200 rounded"
+                                                        onClick={() =>
+                                                            idx < orderLines.length - 1 && moveLine(idx, idx + 1)
+                                                        }
+                                                    >
+                                                        ↓
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+
+                                {exercise.exercise_type === 'SYNTAX' && (
+                                    <div className="space-y-2 font-mono text-[14px] text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        {(exercise.syntaxLines ?? []).map((line) => (
+                                            <button
+                                                key={line.id}
+                                                type="button"
+                                                onClick={() => setSyntaxPick(line.id)}
+                                                className={`flex w-full rounded-lg px-2 py-1.5 text-left transition ${
+                                                    syntaxPick === line.id
+                                                        ? 'bg-[#D8B4FE] text-[#6B21A8] font-bold'
+                                                        : 'hover:bg-gray-200'
+                                                }`}
+                                            >
+                                                <span className="mr-3 text-gray-400">{line.id + 1}</span>
+                                                {line.text}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* Options hint if MCQ */}
+                        {exercise.exercise_type === 'MULTIPLE_CHOICE' && (
+                            <h3 className="text-[13px] font-black text-gray-900 mt-2">Opciones</h3>
+                        )}
+
+                        <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+                            <button
+                                type="button"
+                                onClick={() => void handleSubmit()}
+                                disabled={!canSubmit || submitting}
+                                className="w-full sm:w-auto bg-[#4A86F7] hover:bg-blue-600 text-white font-bold rounded-xl px-10 py-3.5 shadow-sm disabled:opacity-50 transition-colors"
+                            >
+                                {submitting ? (
+                                    <span className="loading loading-spinner loading-sm" />
+                                ) : (
+                                    'Comprobar respuesta'
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                className="text-[13px] font-bold text-[#4A86F7] hover:underline flex items-center gap-1"
+                                onClick={() => {
+                                    setCodeDraft(exercise.starterCode ?? '');
+                                    setMcqPick(null);
+                                    setSyntaxPick(null);
+                                    setFeedback('idle');
+                                    setResultMessage(null);
+                                }}
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                    ></path>
+                                </svg>
+                                Reiniciar ejercicio
+                            </button>
+                        </div>
+
+                        {resultMessage && (
+                            <div
+                                className={`mt-2 rounded-xl px-4 py-3 text-[14px] font-bold transition-all ${
+                                    feedback === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}
+                            >
+                                {resultMessage}
+                            </div>
+                        )}
                     </div>
-                </section>
+                </div>
+
+                {/* Right Mascot Image */}
+                <div className="w-full lg:w-[400px] flex items-center justify-center relative hidden md:flex">
+                    <img
+                        src="/Otly.svg"
+                        alt="Mascota pensando"
+                        className="w-[300px] h-auto drop-shadow-xl"
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                        }}
+                    />
+                    <div className="absolute top-10 right-20 text-6xl text-[#4A86F7] font-black rotate-12 opacity-80 animate-bounce">
+                        ?
+                    </div>
+                    <div className="absolute top-20 left-10 text-5xl text-[#4A86F7] font-black -rotate-12 opacity-60">
+                        ?
+                    </div>
+                </div>
             </div>
         </div>
     );

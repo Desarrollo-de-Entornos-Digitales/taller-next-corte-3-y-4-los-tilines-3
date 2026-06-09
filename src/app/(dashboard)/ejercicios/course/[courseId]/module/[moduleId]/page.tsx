@@ -109,17 +109,10 @@ export default function ModuleLearningPage() {
             : (module?.progress ?? 0);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col font-sans">
             <NavBar />
 
-            <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-10">
-                <Link
-                    href={`/ejercicios/course/${courseId}`}
-                    className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-6"
-                >
-                    ← Volver al camino
-                </Link>
-
+            <main className="flex-1 max-w-[1000px] mx-auto w-full px-6 py-12">
                 {loading && (
                     <div className="bg-white rounded-3xl p-8 animate-pulse space-y-4">
                         <div className="h-8 bg-gray-200 rounded w-2/3" />
@@ -132,82 +125,139 @@ export default function ModuleLearningPage() {
                 )}
 
                 {!loading && module && (
-                    <div className="space-y-8">
-                        <section className="rounded-3xl bg-white shadow-sm border border-gray-100 p-8">
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                                Módulo {module.level_order}
-                            </p>
-                            <h1 className="text-3xl font-black text-gray-900 mt-1">{module.title}</h1>
-                            <div className="mt-6">
-                                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide">
-                                    Documentación del tema
-                                </h2>
-                                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-2">
-                                    {module.description}
+                    <div className="space-y-12">
+                        {/* Header Section */}
+                        <section className="flex flex-col md:flex-row justify-between gap-10">
+                            <div className="w-full md:w-1/2 flex flex-col justify-center">
+                                <p className="text-[15px] font-black text-[#2563EB] mb-2 tracking-tight">
+                                    Unidad {module.level_order}
                                 </p>
+                                <h1 className="text-[42px] font-black text-gray-900 leading-none mb-4">
+                                    {module.title || 'Condicionales'}
+                                </h1>
+                                <p className="text-[15px] text-gray-500 font-medium leading-relaxed mb-8 max-w-sm">
+                                    {module.description ||
+                                        'Aprenderás a tomar decisiones en tus programas usando estructuras condicionales.'}
+                                </p>
+
+                                {/* Progress Box */}
+                                <div className="rounded-3xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.02)] p-6 w-full max-w-sm bg-white">
+                                    <h3 className="text-[13px] font-black text-gray-900 mb-4">
+                                        Tu progreso en esta unidad
+                                    </h3>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-grow bg-gray-200 rounded-full h-3">
+                                            <div
+                                                className="bg-[#A855F7] h-3 rounded-full"
+                                                style={{ width: `${moduleProgress}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-[13px] font-black text-gray-900">{moduleProgress}%</span>
+                                    </div>
+                                    <p className="text-[11px] text-gray-400 font-medium mt-4 border-t border-gray-50 pt-3">
+                                        {module.exercisesCompleted ?? 0} de {module.exerciseCount ?? exercises.length}{' '}
+                                        ejercicios completados
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Otter Mascot */}
+                            <div className="w-full md:w-1/2 flex justify-center md:justify-end items-center relative">
+                                <div className="relative w-80 h-80">
+                                    <img
+                                        src="/Otly.svg"
+                                        alt="Otter"
+                                        className="w-full h-full object-contain drop-shadow-xl"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </section>
 
-                        {exerciseNodes.length > 0 ? (
-                            <CaminoPath
-                                title={`Retos · ${module.title}`}
-                                subtitle="Ejercicios del módulo"
-                                description="Completa cada reto en orden. Quiz, editor de código, ordenar líneas o encontrar errores."
-                                nodes={exerciseNodes}
-                                overallProgress={moduleProgress}
-                                completedLabel="retos"
-                                activeLabel="activo"
-                                lockedLabel="bloqueados"
-                            />
-                        ) : (
-                            <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500">
-                                Este módulo aún no tiene ejercicios configurados.
-                            </div>
-                        )}
+                        {/* Exercise List */}
+                        <section>
+                            <h2 className="text-[17px] font-black text-gray-900 mb-6">Ejercicios de la unidad</h2>
 
-                        {exercises.length > 0 && (
-                            <section>
-                                <h2 className="text-lg font-black text-gray-900 mb-4">Lista de ejercicios</h2>
-                                <div className="space-y-3">
+                            {exercises.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500">
+                                    Este módulo aún no tiene ejercicios configurados.
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
                                     {exercises.map((exercise, index) => {
                                         const hubExercise = module.exercises.find((e) => e.id === exercise.id);
+                                        const isCompleted = hubExercise?.completed;
+
                                         const firstIncomplete = module.exercises.findIndex((e) => !e.completed);
                                         const isLocked = firstIncomplete !== -1 && index > firstIncomplete;
 
+                                        const btnClasses = isCompleted
+                                            ? 'border-2 border-emerald-500 text-emerald-500 bg-transparent'
+                                            : isLocked
+                                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                              : 'bg-[#4A86F7] hover:bg-blue-600 text-white shadow-sm';
+
+                                        const btnText = isCompleted
+                                            ? 'Completado'
+                                            : isLocked
+                                              ? '🔒 Bloqueado'
+                                              : 'Disponible';
+
                                         return (
-                                            <Link
+                                            <div
                                                 key={exercise.id}
-                                                href={
-                                                    isLocked
-                                                        ? '#'
-                                                        : `/ejercicios/arena/${exercise.id}?courseId=${courseId}&moduleId=${moduleId}`
-                                                }
-                                                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white border p-5 shadow-sm transition-all ${
-                                                    isLocked
-                                                        ? 'border-gray-100 opacity-50 pointer-events-none'
-                                                        : 'border-gray-100 hover:shadow-md hover:border-blue-200'
-                                                }`}
+                                                className={`flex items-center justify-between rounded-2xl bg-white border border-gray-100 px-6 py-5 shadow-sm transition-all ${isLocked ? 'opacity-70 bg-gray-50' : 'hover:border-blue-200'}`}
                                             >
-                                                <div className="flex items-start gap-4">
-                                                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#1E3A8A] text-white font-black text-sm">
-                                                        {hubExercise?.completed ? '✓' : index + 1}
-                                                    </span>
-                                                    <div>
-                                                        <h3 className="font-bold text-gray-900">{exercise.title}</h3>
-                                                        <p className="text-sm text-gray-500 mt-1">
-                                                            {exercise.description}
-                                                        </p>
+                                                <div className="flex items-center gap-5">
+                                                    <div
+                                                        className={`w-10 h-10 rounded-full border flex items-center justify-center font-bold text-sm ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-200 text-gray-500 bg-white'}`}
+                                                    >
+                                                        {isCompleted ? '✓' : index + 1}
                                                     </div>
+                                                    <h3
+                                                        className={`font-black text-[15px] ${isLocked ? 'text-gray-500' : 'text-gray-900'}`}
+                                                    >
+                                                        {index + 1}. {exercise.title}
+                                                    </h3>
                                                 </div>
-                                                <span className="badge bg-[#4A86F7] text-white border-none">
-                                                    {getExerciseTypeLabel(exercise.exercise_type)}
-                                                </span>
-                                            </Link>
+
+                                                {isLocked ? (
+                                                    <span
+                                                        className={`rounded-xl py-2.5 px-6 font-bold text-[13px] text-center min-w-[140px] ${btnClasses}`}
+                                                    >
+                                                        {btnText}
+                                                    </span>
+                                                ) : (
+                                                    <Link
+                                                        href={`/ejercicios/arena/${exercise.id}?courseId=${courseId}&moduleId=${moduleId}`}
+                                                        className={`rounded-xl py-2.5 px-6 font-bold text-[13px] text-center min-w-[140px] transition-colors ${btnClasses}`}
+                                                    >
+                                                        {btnText}
+                                                    </Link>
+                                                )}
+                                            </div>
                                         );
                                     })}
                                 </div>
-                            </section>
-                        )}
+                            )}
+
+                            {/* Quiz Banner */}
+                            <div className="mt-8 rounded-3xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.02)] p-8 flex items-center justify-between bg-white relative overflow-hidden group hover:border-[#4A86F7] transition-colors cursor-pointer">
+                                <div>
+                                    <h3 className="text-[22px] font-black text-gray-900 mb-1">
+                                        Quiz final de la unidad
+                                    </h3>
+                                    <p className="text-[13px] text-gray-500 font-medium">
+                                        Demuestra todo lo que aprendiste y deten tu insignia
+                                    </p>
+                                </div>
+                                <div className="w-12 h-12 rounded-full bg-[#4A86F7] flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform shadow-md">
+                                    <span className="font-bold text-lg leading-none">→</span>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 )}
             </main>

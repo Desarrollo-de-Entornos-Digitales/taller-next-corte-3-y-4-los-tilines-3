@@ -7,7 +7,12 @@ import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ArenaPlayer from '@/components/arena/ArenaPlayer';
-import { ArenaExercise, getArenaExercise, getArenaExercisesByModule, getCourseLearningHub } from '@/app/(dashboard)/services/exerciseService';
+import {
+    ArenaExercise,
+    getArenaExercise,
+    getArenaExercisesByModule,
+    getCourseLearningHub,
+} from '@/app/(dashboard)/services/exerciseService';
 
 const readErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === 'object' && error !== null) {
@@ -115,27 +120,33 @@ export default function ArenaPageClient() {
     const displayError = !hasValidExerciseId ? 'ID de ejercicio inválido' : error;
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col font-sans">
             <NavBar />
 
-            <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-10">
-                {loading && <div className="bg-white rounded-3xl p-8 animate-pulse h-96" />}
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+                {loading && <div className="bg-white rounded-3xl p-8 animate-pulse h-96 border border-gray-100" />}
 
                 {displayError && !loading && (
                     <div className="space-y-4">
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl shadow-sm">
                             {displayError}
                         </div>
-                        <Link href="/feed" className="btn btn-outline">
+                        <Link
+                            href="/feed"
+                            className="btn btn-outline border-red-200 hover:bg-red-50 hover:text-red-700"
+                        >
                             Ir al feed
                         </Link>
                     </div>
                 )}
 
                 {!userId && !loading && !displayError && (
-                    <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-xl">
-                        Debes iniciar sesión para practicar.{' '}
-                        <Link href="/login" className="underline font-semibold">
+                    <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-5 rounded-2xl shadow-sm text-center">
+                        <p className="font-medium mb-3">Debes iniciar sesión para practicar.</p>
+                        <Link
+                            href="/login"
+                            className="bg-[#4A86F7] hover:bg-blue-600 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm inline-block transition-colors"
+                        >
                             Iniciar sesión
                         </Link>
                     </div>
