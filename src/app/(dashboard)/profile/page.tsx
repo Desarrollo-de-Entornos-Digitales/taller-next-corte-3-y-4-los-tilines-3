@@ -115,7 +115,7 @@ export default function ProfilePage() {
                 setStats(overview.stats);
                 setTasks(overview.upcomingTasks);
                 mergeRecentActivity(overview.recentActivity);
-                
+
                 if (token) {
                     try {
                         const uAchievements = await achievementsService.getUserAchievements(userId, token);
@@ -254,7 +254,9 @@ export default function ProfilePage() {
                                     <BookOpen className="size-7 text-blue-600" />
                                 </div>
                                 <p className="text-3xl font-black text-gray-900">{displayStats.activeUnits}</p>
-                                <p className="text-[10px] uppercase font-bold text-gray-400 mt-1">Unidades en desarrollo</p>
+                                <p className="text-[10px] uppercase font-bold text-gray-400 mt-1">
+                                    Unidades en desarrollo
+                                </p>
                             </div>
                             <div className="flex flex-col items-center">
                                 <div className="size-14 rounded-2xl bg-violet-50 flex items-center justify-center mb-3">
@@ -328,14 +330,16 @@ export default function ProfilePage() {
                             <div className="flex-1 space-y-6">
                                 {realAchievements.map((ua) => (
                                     <div key={ua.id} className="flex items-start gap-4">
-                                        <div
-                                            className="size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs bg-blue-50 border-blue-100 text-blue-600"
-                                        >
+                                        <div className="size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs bg-blue-50 border-blue-100 text-blue-600">
                                             <Trophy className="size-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">{ua.achievement?.name || 'Logro Desbloqueado'}</p>
-                                            <p className="text-[11px] text-gray-400 mt-0.5">{ua.achievement?.description || '¡Sigue así!'}</p>
+                                            <p className="text-sm font-bold text-gray-900">
+                                                {ua.achievement?.name || 'Logro Desbloqueado'}
+                                            </p>
+                                            <p className="text-[11px] text-gray-400 mt-0.5">
+                                                {ua.achievement?.description || '¡Sigue así!'}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
