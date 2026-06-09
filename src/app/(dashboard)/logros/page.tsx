@@ -74,8 +74,11 @@ export default function LogrosPage() {
 
             <main className="flex-1 max-w-[1200px] w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in pb-20">
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h1 className="text-3xl font-black text-[#0B1527] mb-2 tracking-tight">Mis logros</h1>
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-100 pb-4">
+                    <h1 className="text-3xl font-black text-[#0B1527] tracking-tight relative">
+                        Mis logros
+                        <span className="absolute -bottom-4 left-0 w-full h-1 bg-[#4A86F7] rounded-t-lg"></span>
+                    </h1>
                     {isAdmin && (
                         <Link
                             href="/logros/manage"
@@ -150,44 +153,68 @@ export default function LogrosPage() {
                 </div>
 
                 {/* Achievements Grid */}
-                <div className="pt-4">
+                <div className="pt-2">
+                    <h2 className="text-[22px] font-black text-gray-900 mb-6">Mis insignias</h2>
                     <div className="grid grid-cols-1 justify-items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         {allAchievements.map((achievement: any) => {
                             const isUnlocked = unlockedIds.has(achievement.id);
+                            // Obtenemos el color base, enviando false para que incluso los bloqueados tengan fondo de color para difuminar
+                            const style = getIconStyleForAchievement(achievement.name, false);
 
                             return (
                                 <div
                                     key={achievement.id}
-                                    className={`relative flex flex-col items-center rounded-3xl p-6 w-full h-[240px] transition-all duration-300 border ${!isUnlocked ? 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-100 shadow-sm' : 'bg-white border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.06)]'}`}
+                                    className={`relative flex flex-col items-center rounded-3xl p-6 w-full h-[240px] transition-all duration-300 border ${
+                                        !isUnlocked
+                                            ? 'bg-[#E5E7EB]/60 border-transparent shadow-none'
+                                            : 'bg-white border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.06)]'
+                                    }`}
                                 >
                                     <div
-                                        className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center text-4xl shadow-sm relative overflow-hidden bg-blue-50`}
+                                        className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center relative overflow-hidden ${style.bg}`}
                                     >
-                                        {!isUnlocked ? (
-                                            <div className="absolute inset-0 bg-black/10 flex items-center justify-center backdrop-blur-[1px]">
-                                                <span className="text-gray-800 text-3xl drop-shadow-md">🔒</span>
+                                        <img
+                                            src={`https://api.dicebear.com/7.x/bottts/svg?seed=${achievement.name}`}
+                                            alt={achievement.name}
+                                            className={`w-16 h-16 transition-all ${!isUnlocked ? 'blur-[3px] opacity-50' : ''}`}
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+
+                                        {!isUnlocked && (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                {/* Thick Stroke Lock Icon */}
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="w-9 h-9 text-gray-800 drop-shadow-md"
+                                                >
+                                                    <rect width="14" height="11" x="5" y="11" rx="2" ry="2" />
+                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                                </svg>
                                             </div>
-                                        ) : (
-                                            <img
-                                                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${achievement.name}`}
-                                                alt="Logro"
-                                                className="w-16 h-16"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                }}
-                                            />
                                         )}
                                     </div>
                                     <h3
-                                        className={`font-black text-[15px] text-center leading-tight mb-1.5 ${!isUnlocked ? 'text-gray-500' : 'text-[#0B1527]'}`}
+                                        className={`font-black text-[15px] text-center leading-tight mb-1.5 ${!isUnlocked ? 'text-gray-800' : 'text-[#0B1527]'}`}
                                     >
                                         {!isUnlocked ? 'Logro Bloqueado' : achievement.name}
                                     </h3>
                                     <p
-                                        className={`text-[12px] text-center leading-snug line-clamp-3 ${!isUnlocked ? 'text-gray-400' : 'text-gray-500'}`}
+                                        className={`text-[12px] text-center leading-snug line-clamp-3 ${
+                                            !isUnlocked
+                                                ? 'text-gray-600 blur-[3px] select-none opacity-50'
+                                                : 'text-gray-500'
+                                        }`}
                                     >
                                         {!isUnlocked
-                                            ? 'Completa más ejercicios para desbloquear este logro'
+                                            ? 'Completa ejercicios para ver el logro'
                                             : achievement.description}
                                     </p>
                                 </div>

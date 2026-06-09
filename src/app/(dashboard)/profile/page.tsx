@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import { useAuth } from '@/context/AuthContext';
 import { useProfileStore } from '@/lib/zustand/profileStore';
-import { Check, Star, Play, ChevronRight, Calendar, BookOpen, BarChart3, Trophy, Compass } from 'lucide-react';
+import { Check, Star, Play, ChevronRight, Calendar, BookOpen, BarChart3, Trophy, FileText, Users, Clock, Eye } from 'lucide-react';
 
 import { getProfileOverview, ProfileStats } from '../services/profileService';
 import { achievementsService, UserAchievement } from '../services/achievementsService';
@@ -33,6 +33,67 @@ const formatActivityTime = (isoDate: string) => {
     return `hace ${diffDays} d`;
 };
 
+// Datos de ejemplo para la vista de profesor
+const mockProfessorTasks = [
+    {
+        id: '1',
+        title: 'Condicionales',
+        type: 'Ejercicio',
+        courseName: 'Curso G1',
+        moduleName: 'Unidad 2',
+        dateLabel: 'Mantén',
+        color: '#E9539A',
+        href: '/ejercicios/manage/create',
+    },
+    {
+        id: '2',
+        title: 'Ciclos',
+        type: 'Ejercicio',
+        courseName: 'Curso G3',
+        moduleName: 'Unidad 3',
+        dateLabel: '18/sem',
+        color: '#953DF1',
+        href: '/ejercicios/manage/create',
+    },
+    {
+        id: '3',
+        title: 'Estructuras de control',
+        type: 'Quiz',
+        courseName: 'Todos los cursos',
+        moduleName: 'Unidad 2',
+        dateLabel: '02/sem',
+        color: '#FFB800',
+        href: '/ejercicios/manage/create',
+    },
+];
+
+const mockProfessorActivity = [
+    {
+        id: '1',
+        title: 'Creaste "Tipos de datos"',
+        description: 'Has creado un nuevo ejercicio',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        icon: 'check' as const,
+        color: '#4A86F7',
+    },
+    {
+        id: '2',
+        title: 'Actualizaste "Unidad 1"',
+        description: 'Has modificado el módulo',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        icon: 'play' as const,
+        color: '#37CDB2',
+    },
+    {
+        id: '3',
+        title: 'Eliminaste "Quiz objetos"',
+        description: 'Has eliminado un ejercicio',
+        createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+        icon: 'star' as const,
+        color: '#E9539A',
+    },
+];
+
 export default function ProfilePage() {
     const { user, token } = useAuth();
     const [realAchievements, setRealAchievements] = useState<UserAchievement[]>([]);
@@ -51,40 +112,22 @@ export default function ProfilePage() {
     } = useProfileStore();
 
     const displayStats = stats || initialStats;
-
-    const displayName = user?.username ?? 'Estudiante';
-    const displayRole = user?.roleName ? String(user.roleName).toLowerCase() : 'student';
+    const displayName = user?.username ?? 'majo';
+    const displayUsername = user?.username ? `@${user.username.toLowerCase().replace(/\s+/g, '_')}` : '@majo';
+    const displayRole = user?.roleName ? String(user.roleName).toLowerCase() : 'profesor';
+    const isProfessor = displayRole === 'profesor' || displayRole === 'admin' || displayRole === 'teacher';
     const avatarLetter = displayName.charAt(0).toUpperCase();
 
-    const achievements = useMemo(() => {
-        const items: { id: string; title: string; subtitle: string }[] = [];
+    // Datos específicos para cada rol
+    const studentStats = {
+        activeCourses: displayStats.activeUnits || 1,
+        averageProgress: displayStats.averageProgress || 87,
+    };
 
-        if (displayStats.completedExercises > 0) {
-            items.push({
-                id: 'logic',
-                title: 'Lógica en acción',
-                subtitle: `Completaste ${displayStats.completedExercises} ejercicio${displayStats.completedExercises === 1 ? '' : 's'}`,
-            });
-        }
-
-        if (displayStats.activeUnits > 0) {
-            items.push({
-                id: 'explorer',
-                title: 'Explorador',
-                subtitle: `Has iniciado ${displayStats.activeUnits} unidad${displayStats.activeUnits === 1 ? '' : 'es'}`,
-            });
-        }
-
-        if (displayStats.averageProgress >= 80) {
-            items.push({
-                id: 'streak',
-                title: 'Ritmo imparable',
-                subtitle: `Mantienes un progreso promedio de ${displayStats.averageProgress}%`,
-            });
-        }
-
-        return items.slice(0, 3);
-    }, [displayStats]);
+    const professorStats = {
+        activeCourses: displayStats.activeUnits || 1,
+        publishedExercises: displayStats.totalExercises || 3,
+    };
 
     useEffect(() => {
         let mounted = true;
@@ -105,18 +148,17 @@ export default function ProfilePage() {
                 }
 
                 if (!userId || Number.isNaN(userId)) {
-                    throw new Error('No se encontro el usuario autenticado.');
+                    throw new Error('No se encontró el usuario autenticado.');
                 }
 
                 const overview = await getProfileOverview(userId);
                 if (!mounted) return;
 
-                console.log('Profile Overview Loaded:', overview.stats);
                 setStats(overview.stats);
                 setTasks(overview.upcomingTasks);
                 mergeRecentActivity(overview.recentActivity);
 
-                if (token) {
+                if (token && !isProfessor) {
                     try {
                         const uAchievements = await achievementsService.getUserAchievements(userId, token);
                         if (mounted) setRealAchievements(uAchievements.slice(0, 3));
@@ -138,7 +180,6 @@ export default function ProfilePage() {
 
         void loadProfile();
 
-        // Listen for activity changes to refresh stats/tasks
         const handleActivityUpdate = () => {
             void loadProfile();
         };
@@ -149,260 +190,139 @@ export default function ProfilePage() {
             mounted = false;
             window.removeEventListener('otly-activity-update', handleActivityUpdate);
         };
-    }, [user?.id, mergeRecentActivity, setLoadingTasks, setTasks, setTasksError]);
+    }, [user?.id, mergeRecentActivity, setLoadingTasks, setTasks, setTasksError, isProfessor, token, setStats]);
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             <NavBar />
 
-            <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8 md:py-10 space-y-8 font-sans">
-                <header>
-                    <h1 className="text-2xl font-black text-gray-900 mb-6">Perfil</h1>
-                </header>
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-8 md:py-12 font-sans">
+                <h1 className="text-3xl font-black text-gray-900 mb-6">Perfil</h1>
 
                 {tasksError && (
-                    <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-2xl">
+                    <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-2xl mb-4">
                         {tasksError}
                     </div>
                 )}
 
-                <section className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
-                    {/* User Card */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] h-full flex flex-col">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 flex-1">
-                            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6">
-                                <div className="w-32 h-32 rounded-full relative overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center text-4xl font-bold text-gray-500">
-                                    {avatarLetter}
+                {/* Layout de 2 columnas: Perfil a la izquierda, Tareas a la derecha */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    {/* Columna Izquierda: Tarjeta de Usuario */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-md mb-4">
+                                {avatarLetter}
+                            </div>
+                            <h2 className="text-2xl font-black text-gray-900">{displayName}</h2>
+                            <p className="text-gray-500 text-sm mt-1">{displayUsername}</p>
+                            <div className="w-full mt-6 space-y-2">
+                                <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                                    <span className="text-gray-400">🎓</span> Universidad Icesi
                                 </div>
-                                <div className="text-center sm:text-left">
-                                    <h2 className="text-[28px] font-black text-gray-900 leading-tight">
-                                        {displayName}
-                                    </h2>
-                                    <p className="text-gray-500 font-medium text-sm mt-1">
-                                        @{displayName.toLowerCase().replace(/\s+/g, '_')}
-                                    </p>
-
-                                    <div className="mt-4 space-y-2 text-sm text-gray-600 font-medium">
-                                        <div className="flex items-center gap-2 justify-center sm:justify-start">
-                                            <span className="text-gray-400">🎓</span> Universidad Icesi
-                                        </div>
-                                        <div className="flex items-center gap-2 justify-center sm:justify-start">
-                                            <span className="text-gray-400">👤</span> Miembro desde Julio 2026
-                                        </div>
-                                    </div>
+                                <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                                    <span className="text-gray-400">📅</span> Miembro desde: Junio 2024
                                 </div>
                             </div>
-
-                            <button className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold rounded-xl px-8 py-3 text-sm transition-colors cursor-pointer w-full sm:w-auto h-fit mt-auto sm:mt-0 sm:self-end">
+                            <button className="mt-6 bg-[#2563EB] hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-2.5 text-sm transition-colors w-full">
                                 Editar perfil
                             </button>
                         </div>
-                    </article>
+                    </div>
 
-                    {/* Next Tasks */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] h-full">
+                    {/* Columna Derecha: Próximas tareas */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
                         <div className="flex items-center gap-2 mb-6">
-                            <Calendar className="size-5 text-[#1E3A8A]" />
-                            <h2 className="font-black text-gray-900 text-[17px]">Próximas tareas</h2>
+                            <Calendar className="w-5 h-5 text-[#1E3A8A]" />
+                            <h3 className="font-black text-gray-900 text-lg">Próximas tareas</h3>
                         </div>
 
                         {loadingTasks ? (
                             <div className="space-y-4">
-                                {[1, 2, 3].map((item) => (
-                                    <div key={item} className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
                                 ))}
-                            </div>
-                        ) : tasks.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-gray-300 p-6 text-sm text-gray-500 text-center">
-                                No tienes ejercicios pendientes. Muy bien.
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {tasks.slice(0, 3).map((task) => (
+                                {mockProfessorTasks.map((task) => (
                                     <Link
                                         key={task.id}
                                         href={task.href}
-                                        className="relative flex items-center justify-between rounded-[20px] bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-all p-5 group overflow-hidden"
+                                        className="flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all group"
                                     >
-                                        <div
-                                            className="absolute left-0 top-0 bottom-0 w-2.5 rounded-l-[20px]"
-                                            style={{ backgroundColor: task.color || '#4A86F7' }}
-                                        />
-                                        <div className="ml-2 pr-4">
-                                            <p className="font-black text-gray-900 text-[15px] leading-tight mb-1">
+                                        <div className="flex-1">
+                                            <p className="font-bold text-gray-900 text-sm">
                                                 {task.type}: {task.title}
                                             </p>
-                                            <p className="text-[13px] text-gray-500 font-medium">
-                                                Unidad {task.moduleName.replace(/[^\d]/g, '')} - {task.courseName}
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {task.moduleName} · {task.courseName}
                                             </p>
                                         </div>
-                                        <div className="flex flex-col items-end gap-1 shrink-0">
-                                            {task.dateLabel && (
-                                                <span
-                                                    className="text-[11px] font-bold uppercase"
-                                                    style={{ color: task.color || '#4A86F7' }}
-                                                >
-                                                    {task.dateLabel}
-                                                </span>
-                                            )}
-                                            <ChevronRight className="size-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                                        </div>
+                                        <span
+                                            className="text-xs font-bold px-3 py-1.5 rounded-full"
+                                            style={{ backgroundColor: `${task.color}15`, color: task.color }}
+                                        >
+                                            {task.dateLabel}
+                                        </span>
                                     </Link>
                                 ))}
                             </div>
                         )}
-                    </article>
-                </section>
+                    </div>
+                </div>
 
-                <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Learning Summary */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
-                        <h2 className="font-black text-gray-900 text-[17px] mb-8">Resumen de aprendizaje</h2>
-                        <div className="flex gap-4">
-                            <div className="flex-1 flex flex-col items-center justify-center p-4 rounded-[20px] border border-gray-100">
-                                <div className="w-12 h-12 rounded-full border-2 border-blue-500 text-blue-500 flex items-center justify-center mb-3">
-                                    <BookOpen className="size-6" />
+                {/* Fila inferior: Resumen de aprendizaje y Actividad reciente en una sola línea horizontal */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Resumen de aprendizaje */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                        <h3 className="font-black text-gray-900 text-lg mb-6">Resumen de aprendizaje</h3>
+                        <div className="flex gap-12 justify-center">
+                            <div className="text-center">
+                                <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                                    <BookOpen className="w-8 h-8" />
                                 </div>
-                                <p className="text-3xl font-black text-gray-900">{displayStats.activeUnits || 1}</p>
-                                <p className="text-[11px] font-bold text-gray-500 mt-1">Cursos activos</p>
+                                <p className="text-3xl font-black text-gray-900">{professorStats.activeCourses}</p>
+                                <p className="text-xs font-medium text-gray-500 mt-1">Cursos activos</p>
                             </div>
-                            <div className="flex-1 flex flex-col items-center justify-center p-4 rounded-[20px] border border-gray-100">
-                                <div className="w-12 h-12 rounded-full bg-purple-500 text-white flex items-center justify-center mb-3">
-                                    <BarChart3 className="size-6" />
+                            <div className="text-center">
+                                <div className="w-16 h-16 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-3">
+                                    <FileText className="w-8 h-8" />
                                 </div>
-                                <p className="text-3xl font-black text-gray-900">
-                                    {displayStats.averageProgress || 87}%
-                                </p>
-                                <p className="text-[11px] font-bold text-gray-500 mt-1 text-center">
-                                    Progreso promedio
-                                </p>
+                                <p className="text-3xl font-black text-gray-900">{professorStats.publishedExercises}</p>
+                                <p className="text-xs font-medium text-gray-500 mt-1">Ejercicios publicados</p>
                             </div>
                         </div>
-                    </article>
+                    </div>
 
-                    {/* Recent Activity */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] flex flex-col">
-                        <h2 className="font-black text-gray-900 text-[17px] mb-6">Actividad reciente</h2>
-
-                        {recentActivity.length === 0 ? (
-                            <div className="flex-1 flex flex-col gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                                        ✓
+                    {/* Actividad reciente */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                        <h3 className="font-black text-gray-900 text-lg mb-6">Actividad reciente</h3>
+                        <div className="space-y-4">
+                            {mockProfessorActivity.map((activity) => (
+                                <div key={activity.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                                    <div
+                                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                                        style={{ backgroundColor: `${activity.color}15` }}
+                                    >
+                                        {activity.icon === 'check' && <Check className="w-5 h-5" style={{ color: activity.color }} />}
+                                        {activity.icon === 'play' && <Play className="w-5 h-5" style={{ color: activity.color }} />}
+                                        {activity.icon === 'star' && <Star className="w-5 h-5" style={{ color: activity.color }} />}
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-gray-900">Completaste "Condicionales"</p>
-                                        <p className="text-xs text-gray-500">Hace 2 horas</p>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-gray-900 text-sm">{activity.title}</p>
+                                        <p className="text-xs text-gray-400 mt-0.5">{formatActivityTime(activity.createdAt)}</p>
                                     </div>
+                                    <Eye className="w-4 h-4 text-gray-300" />
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                                        ⭐
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-gray-900">Obtuviste 20 puntos</p>
-                                        <p className="text-xs text-gray-500">Hace 1 día</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0">
-                                        🔄
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-gray-900">Iniciaste "Ciclos"</p>
-                                        <p className="text-xs text-gray-500">Hace 2 días</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex-1 space-y-5">
-                                {recentActivity.slice(0, 3).map((activity) => (
-                                    <div key={activity.id} className="flex items-start gap-3">
-                                        <div
-                                            className="size-8 rounded-full flex items-center justify-center shrink-0 border"
-                                            style={{
-                                                backgroundColor: activity.color ? `${activity.color}15` : '#4A86F715',
-                                                borderColor: activity.color ? `${activity.color}30` : '#4A86F730',
-                                                color: activity.color || '#4A86F7',
-                                            }}
-                                        >
-                                            {activity.icon === 'star' ? (
-                                                <Star className="size-4 fill-current" />
-                                            ) : activity.icon === 'play' ? (
-                                                <Play className="size-4 fill-current" />
-                                            ) : (
-                                                <Check className="size-4" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0 mt-0.5">
-                                            <p className="text-sm font-bold text-gray-900 leading-tight">
-                                                {activity.title}
-                                            </p>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {formatActivityTime(activity.createdAt)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="mt-auto pt-4">
-                            <Link
-                                href="/activity"
-                                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
-                            >
-                                Ver toda mi actividad <ChevronRight className="size-3" />
+                            ))}
+                        </div>
+                        <div className="mt-6 pt-4 border-t border-gray-100">
+                            <Link href="/activity" className="text-sm font-semibold text-[#2563EB] hover:underline flex items-center justify-between">
+                                Ver toda mi actividad <ChevronRight className="w-4 h-4" />
                             </Link>
                         </div>
-                    </article>
-
-                    {/* Achievements */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] flex flex-col">
-                        <h2 className="font-black text-gray-900 text-[17px] mb-6">Logros</h2>
-
-                        {realAchievements.length === 0 ? (
-                            <div className="flex-1">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-xl shadow-inner">
-                                        🌟
-                                    </div>
-                                    <div className="mt-1">
-                                        <p className="text-sm font-bold text-gray-900">Lógica en acción</p>
-                                        <p className="text-xs text-gray-500 mt-0.5">Completaste una unidad</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex-1 space-y-6">
-                                {realAchievements.map((ua) => (
-                                    <div key={ua.id} className="flex items-start gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-xl shadow-inner text-emerald-600">
-                                            <Trophy className="size-5" />
-                                        </div>
-                                        <div className="mt-1">
-                                            <p className="text-[15px] font-bold text-gray-900">
-                                                {ua.achievement?.name || 'Logro Desbloqueado'}
-                                            </p>
-                                            <p className="text-xs text-gray-500 mt-0.5">
-                                                {ua.achievement?.description || '¡Sigue así!'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="mt-auto pt-4">
-                            <Link
-                                href="/logros"
-                                className="text-xs font-bold text-[#2563EB] hover:underline flex items-center gap-1"
-                            >
-                                Ver todos mis logros <ChevronRight className="size-3" />
-                            </Link>
-                        </div>
-                    </article>
-                </section>
+                    </div>
+                </div>
             </main>
 
             <Footer />
