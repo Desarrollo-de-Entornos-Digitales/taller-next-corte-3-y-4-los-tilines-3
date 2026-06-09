@@ -10,6 +10,7 @@ import { useProfileStore } from '@/lib/zustand/profileStore';
 import { Check, Star, Play, ChevronRight, Calendar, BookOpen, BarChart3, Trophy, Compass } from 'lucide-react';
 
 import { getProfileOverview, ProfileStats } from '../services/profileService';
+import { achievementsService, UserAchievement } from '../services/achievementsService';
 
 const initialStats: ProfileStats = {
     activeUnits: 0,
@@ -33,7 +34,8 @@ const formatActivityTime = (isoDate: string) => {
 };
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user, token } = useAuth();
+    const [realAchievements, setRealAchievements] = useState<UserAchievement[]>([]);
 
     const {
         tasks,
@@ -113,6 +115,15 @@ export default function ProfilePage() {
                 setStats(overview.stats);
                 setTasks(overview.upcomingTasks);
                 mergeRecentActivity(overview.recentActivity);
+                
+                if (token) {
+                    try {
+                        const uAchievements = await achievementsService.getUserAchievements(userId, token);
+                        if (mounted) setRealAchievements(uAchievements.slice(0, 3));
+                    } catch (error) {
+                        console.error('Failed to fetch user achievements', error);
+                    }
+                }
             } catch (error: unknown) {
                 if (!mounted) return;
                 if (error instanceof Error) {
@@ -309,34 +320,22 @@ export default function ProfilePage() {
                     <article className="lg:col-span-1 rounded-3xl bg-white border border-gray-100 p-6 shadow-sm flex flex-col">
                         <h2 className="font-black text-gray-900 mb-6">Logros</h2>
 
-                        {achievements.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                        {realAchievements.length === 0 ? (
+                            <div className="rounded-2xl border border-dashed border-gray-300 p-4 text-sm text-gray-500 text-center">
                                 Completa ejercicios para desbloquear logros.
                             </div>
                         ) : (
                             <div className="flex-1 space-y-6">
-                                {achievements.map((achievement) => (
-                                    <div key={achievement.id} className="flex items-start gap-4">
+                                {realAchievements.map((ua) => (
+                                    <div key={ua.id} className="flex items-start gap-4">
                                         <div
-                                            className={`size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs ${
-                                                achievement.id === 'logic'
-                                                    ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                                                    : achievement.id === 'explorer'
-                                                      ? 'bg-purple-50 border-purple-100 text-purple-600'
-                                                      : 'bg-amber-50 border-amber-100 text-amber-600'
-                                            }`}
+                                            className="size-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs bg-blue-50 border-blue-100 text-blue-600"
                                         >
-                                            {achievement.id === 'logic' ? (
-                                                <Trophy className="size-5" />
-                                            ) : achievement.id === 'explorer' ? (
-                                                <Compass className="size-5" />
-                                            ) : (
-                                                <Star className="size-5" />
-                                            )}
+                                            <Trophy className="size-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">{achievement.title}</p>
-                                            <p className="text-[11px] text-gray-400 mt-0.5">{achievement.subtitle}</p>
+                                            <p className="text-sm font-bold text-gray-900">{ua.achievement?.name || 'Logro Desbloqueado'}</p>
+                                            <p className="text-[11px] text-gray-400 mt-0.5">{ua.achievement?.description || '¡Sigue así!'}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -345,7 +344,7 @@ export default function ProfilePage() {
 
                         <div className="mt-6 pt-4 border-t border-gray-50">
                             <Link
-                                href="/achievements"
+                                href="/logros"
                                 className="group flex items-center justify-between text-xs font-bold text-blue-600 hover:text-blue-700"
                             >
                                 Ver todos mis logros
