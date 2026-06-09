@@ -31,18 +31,22 @@ export default function NavBar() {
             </div>
 
             <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex gap-10">
-                <Link
-                    href="/feed"
-                    className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer"
-                >
-                    Feed
-                </Link>
-                <Link
-                    href="/courses"
-                    className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer"
-                >
-                    Courses
-                </Link>
+                {(!isAdmin && !canManageCourses) && (
+                    <>
+                        <Link
+                            href="/feed"
+                            className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Feed
+                        </Link>
+                        <Link
+                            href="/courses"
+                            className="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Courses
+                        </Link>
+                    </>
+                )}
                 {(isAdmin || canManageCourses) && (
                     <>
                         <Link

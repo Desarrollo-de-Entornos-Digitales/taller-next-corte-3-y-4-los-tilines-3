@@ -110,7 +110,11 @@ export default function Login() {
                 }
             }
 
-            router.push('/feed');
+            if (roleName === 'admin' || roleName === 'professor' || roleName === 'profesor') {
+                router.push('/modules/manage');
+            } else {
+                router.push('/feed');
+            }
         } catch (err: any) {
             console.error('Login error:', err);
             if (err.response) {

@@ -2,17 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { isAdmin, canManageCourses, isStudent } = useAuth();
 
     const navItems = [
-        { name: 'Feed Principal', path: '/feed', icon: '🏠' },
-        { name: 'Courses', path: '/courses', icon: '📚' },
-        { name: 'Unidades', path: '/modules/manage', icon: '🧩' },
-        { name: 'Ejercicios', path: '/ejercicios/manage', icon: '📝' },
-        { name: 'Estudiantes', path: '/students', icon: '👥' }, // Placeholder para el futuro
-    ];
+        { name: 'Feed Principal', path: '/feed', icon: '🏠', show: isStudent },
+        { name: 'Courses', path: '/courses', icon: '📚', show: isStudent },
+        { name: 'Unidades', path: '/modules/manage', icon: '🧩', show: canManageCourses },
+        { name: 'Ejercicios', path: '/ejercicios/manage', icon: '📝', show: canManageCourses },
+        { name: 'Estudiantes', path: '/students', icon: '👥', show: isAdmin },
+    ].filter(item => item.show);
 
     return (
         <aside className="w-64 bg-white border-r border-gray-100 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-10px_rgba(0,0,0,0.02)]">
