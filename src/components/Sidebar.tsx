@@ -11,6 +11,7 @@ export default function Sidebar() {
     const navItems = [
         { name: 'Feed Principal', path: '/feed', icon: '🏠', show: isStudent },
         { name: 'Courses', path: '/courses', icon: '📚', show: isStudent },
+        { name: 'Logros', path: '/logros', icon: '🏆', show: isStudent },
         { name: 'Unidades', path: '/modules/manage', icon: '🧩', show: canManageCourses },
         { name: 'Ejercicios', path: '/ejercicios/manage', icon: '📝', show: canManageCourses },
         { name: 'Estudiantes', path: '/students', icon: '👥', show: isAdmin },
