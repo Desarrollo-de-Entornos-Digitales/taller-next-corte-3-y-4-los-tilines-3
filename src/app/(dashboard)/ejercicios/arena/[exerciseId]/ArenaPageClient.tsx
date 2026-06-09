@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ArenaPlayer from '@/components/arena/ArenaPlayer';
-import { ArenaExercise, getArenaExercise, getArenaExercisesByModule } from '@/app/(dashboard)/services/exerciseService';
+import { ArenaExercise, getArenaExercise, getArenaExercisesByModule, getCourseLearningHub } from '@/app/(dashboard)/services/exerciseService';
 
 const readErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === 'object' && error !== null) {
@@ -55,6 +55,7 @@ export default function ArenaPageClient() {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [nextModuleId, setNextModuleId] = useState<number | null>(null);
 
     useEffect(() => {
         if (!hasValidExerciseId) {
@@ -75,6 +76,19 @@ export default function ArenaPageClient() {
                 if (resolvedModuleId) {
                     const list = await getArenaExercisesByModule(resolvedModuleId);
                     if (mounted) setSiblings(list);
+
+                    if (courseId) {
+                        try {
+                            const hub = await getCourseLearningHub(Number(courseId));
+                            const sortedModules = [...hub.modules].sort((a, b) => a.level_order - b.level_order);
+                            const currentModuleIndex = sortedModules.findIndex((m) => m.id === resolvedModuleId);
+                            if (currentModuleIndex >= 0 && currentModuleIndex < sortedModules.length - 1) {
+                                if (mounted) setNextModuleId(sortedModules[currentModuleIndex + 1].id);
+                            }
+                        } catch (e) {
+                            // ignore
+                        }
+                    }
                 }
             } catch (err: unknown) {
                 if (mounted) {
@@ -138,6 +152,7 @@ export default function ArenaPageClient() {
                         totalExercises={siblings.length || 1}
                         prevExerciseId={prevExerciseId}
                         nextExerciseId={nextExerciseId}
+                        nextModuleId={nextModuleId}
                     />
                 )}
             </main>

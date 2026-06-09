@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
 import { ArenaExercise, getExerciseTypeLabel, submitExerciseAnswer } from '@/app/(dashboard)/services/exerciseService';
@@ -18,6 +19,7 @@ interface ArenaPlayerProps {
     totalExercises?: number;
     nextExerciseId?: number | null;
     prevExerciseId?: number | null;
+    nextModuleId?: number | null;
 }
 
 const typeColors: Record<string, string> = {
@@ -36,7 +38,9 @@ export default function ArenaPlayer({
     totalExercises = 1,
     nextExerciseId,
     prevExerciseId,
+    nextModuleId,
 }: ArenaPlayerProps) {
+    const router = useRouter();
     const addRecentActivity = useProfileStore((state) => state.addRecentActivity);
 
     const [feedback, setFeedback] = useState<Feedback>('idle');
@@ -115,12 +119,24 @@ export default function ArenaPlayer({
 
             if (result.correct) {
                 window.dispatchEvent(new CustomEvent('otly-activity-update'));
-            }
 
-            window.setTimeout(() => {
-                setFeedback('idle');
-                setResultMessage(null);
-            }, 3500);
+                window.setTimeout(() => {
+                    if (nextExerciseId) {
+                        router.push(`/ejercicios/arena/${nextExerciseId}?courseId=${courseId ?? ''}&moduleId=${moduleId ?? ''}`);
+                    } else if (nextModuleId) {
+                        router.push(`/ejercicios/course/${courseId}/module/${nextModuleId}`);
+                    } else if (courseId) {
+                        router.push(`/ejercicios/course/${courseId}`);
+                    } else {
+                        router.push('/feed');
+                    }
+                }, 1800);
+            } else {
+                window.setTimeout(() => {
+                    setFeedback('idle');
+                    setResultMessage(null);
+                }, 3500);
+            }
         } catch {
             setFeedback('error');
             setResultMessage('No se pudo enviar la respuesta. Intenta de nuevo.');
@@ -140,6 +156,9 @@ export default function ArenaPlayer({
         submitting,
         syntaxPick,
         userId,
+        router,
+        nextExerciseId,
+        nextModuleId,
     ]);
 
     const moveLine = (from: number, to: number) => {
@@ -227,15 +246,21 @@ export default function ArenaPlayer({
                     </div>
 
                     {resultMessage && (
-                        <p
-                            className={`mt-4 rounded-2xl px-4 py-3 text-sm font-semibold ${
+                        <div
+                            className={`mt-4 rounded-2xl px-4 py-4 text-sm font-semibold flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100 ${
                                 feedback === 'success'
-                                    ? 'bg-emerald-500/15 text-emerald-900'
-                                    : 'bg-rose-500/15 text-rose-900'
+                                    ? 'bg-emerald-500/15 text-emerald-900 border border-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                                    : 'bg-rose-500/15 text-rose-900 border border-rose-500/20'
                             }`}
                         >
-                            {resultMessage}
-                        </p>
+                            <span>{resultMessage}</span>
+                            {feedback === 'success' && (
+                                <span className="flex items-center gap-2 text-xs opacity-80 animate-pulse font-bold bg-emerald-100 px-3 py-1.5 rounded-full">
+                                    <span className="loading loading-dots loading-xs"></span>
+                                    {nextExerciseId ? 'Avanzando' : nextModuleId ? 'Siguiente unidad' : 'Completado'}
+                                </span>
+                            )}
+                        </div>
                     )}
                 </section>
 
