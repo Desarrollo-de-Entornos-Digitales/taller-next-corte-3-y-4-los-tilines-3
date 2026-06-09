@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { getFeedItems, FeedItem, FeedResponse } from '../services/feedService';
+import { getFeedItems, FeedItem, FeedResponse, getPendingExercises, FeedExercise } from '../services/feedService';
 import { getMyEnrollments, Enrollment } from '../services/courseService';
 import Card from '../../../components/Card';
 import NavBar from '../../../components/NavBar';
@@ -12,11 +12,13 @@ import Footer from '../../../components/Footer';
 
 export default function FeedPage() {
     const [feedData, setFeedData] = useState<FeedResponse | null>(null);
+    const [pendingExercises, setPendingExercises] = useState<FeedExercise[]>([]);
     const [courses, setCourses] = useState<Enrollment[]>([]);
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [username, setUsername] = useState('User');
+    const [userRole, setUserRole] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
@@ -29,6 +31,7 @@ export default function FeedPage() {
                 if (userStr) {
                     const user = JSON.parse(userStr);
                     setUsername(user.username || 'User');
+                    setUserRole(user.roleName || '');
                     userId = user.id;
                 }
 
@@ -69,10 +72,12 @@ export default function FeedPage() {
             const data = await getFeedItems(page, 3, targetCourseId || undefined);
             setFeedData(data);
             setCurrentPage(page);
-            if (data.course_id) {
-                setSelectedCourseId(data.course_id);
-            } else if (targetCourseId) {
-                setSelectedCourseId(targetCourseId);
+            
+            const cid = data.course_id || targetCourseId;
+            if (cid) {
+                const exercises = await getPendingExercises(cid);
+                setPendingExercises(exercises);
+                setSelectedCourseId(cid);
             }
         } catch (err) {
             setError('Error loading modules for this course.');
@@ -86,7 +91,7 @@ export default function FeedPage() {
         loadFeed(1, courseId);
     };
 
-    // Filtros de UI
+    // Filtros de UI (ya no usados, mantenidos por si acaso)
     const getItemsByStatus = (status: string) => feedData?.data.filter((item) => item.status === status) || [];
 
     return (
@@ -95,8 +100,8 @@ export default function FeedPage() {
             <Hero isDashboard={true} username={username} />
 
             <main className="max-w-7xl mx-auto px-6 py-12">
-                {/* Selector de Cursos Estilizado */}
-                {courses.length > 0 && (
+                {/* Selector de Grupos Estilizado */}
+                {courses.length > 0 && userRole !== 'estudiante' && userRole !== 'user' && (
                     <div className="mb-10 p-6 bg-white rounded-3xl shadow-sm border border-gray-100 flex gap-4 overflow-x-auto">
                         {courses.map((e) => (
                             <button
@@ -121,28 +126,23 @@ export default function FeedPage() {
                     </div>
                 ) : (
                     <div className="space-y-12">
-                        {/* Sección: Pendientes */}
+                        {/* Sección: Pending (Unidades) */}
                         <Section
                             title="Pending"
-                            color="bg-pink-500"
-                            items={getItemsByStatus('pending')}
+                            color="bg-[#3b82f6]"
+                            items={feedData?.data || []}
                             courseId={selectedCourseId ?? undefined}
+                            gridCols="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                         />
 
-                        {/* Sección: En Progreso */}
+                        {/* Sección: Ongoing (Ejercicios Disponibles) */}
                         <Section
                             title="Ongoing"
-                            color="bg-teal-500"
-                            items={getItemsByStatus('in_progress')}
+                            color="bg-[#3b82f6]"
+                            items={pendingExercises}
                             courseId={selectedCourseId ?? undefined}
-                        />
-
-                        {/* Sección: Completados */}
-                        <Section
-                            title="Completed"
-                            color="bg-gray-800"
-                            items={getItemsByStatus('completed')}
-                            courseId={selectedCourseId ?? undefined}
+                            isExercises={true}
+                            gridCols="grid-cols-1 md:grid-cols-2"
                         />
 
                         {/* CONTROLES DE PAGINACIÓN */}
@@ -213,24 +213,46 @@ function Section({
     color,
     items,
     courseId,
+    isExercises = false,
+    gridCols = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
 }: {
     title: string;
     color: string;
-    items: FeedItem[];
+    items: any[];
     courseId?: number;
+    isExercises?: boolean;
+    gridCols?: string;
 }) {
     return (
         <section>
             <div className="flex items-center gap-4 mb-6">
-                <div className={`w-2 h-8 ${color} rounded-full`}></div>
-                <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-                <span className="text-sm font-bold bg-gray-200 px-3 py-1 rounded-full">{items.length}</span>
+                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
             </div>
             {items.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {items.map((item) => (
-                        <Card key={item.id} item={item} courseId={courseId} />
-                    ))}
+                <div className={`grid ${gridCols} gap-6`}>
+                    {items.map((item) => {
+                        if (isExercises) {
+                            const ex = item as any;
+                            const feedItem: FeedItem = {
+                                id: ex.id,
+                                title: `Unit ${ex.level_order || ex.id} - Ex ${ex.id}`,
+                                description: `${ex.points} puntos - Dificultad Nivel ${ex.difficulty_level}`,
+                                status: 'in_progress',
+                                progress: 1 // hardcoded to match the visual 1% indicator
+                            };
+                            return <Card key={ex.id} item={feedItem} courseId={courseId} href={`/arena/${ex.id}`} />;
+                        } else {
+                            const mod = item as any;
+                            const modItem: FeedItem = {
+                                id: mod.id,
+                                title: `Unit ${mod.level_order || mod.id}`,
+                                description: mod.description,
+                                progress: mod.progress || 0,
+                                status: 'pending', // Pending unit styling
+                            }
+                            return <Card key={mod.id} item={modItem} courseId={courseId} />;
+                        }
+                    })}
                 </div>
             ) : (
                 <p className="text-gray-400 italic bg-white p-8 rounded-2xl border-2 border-dashed border-gray-100 text-center">

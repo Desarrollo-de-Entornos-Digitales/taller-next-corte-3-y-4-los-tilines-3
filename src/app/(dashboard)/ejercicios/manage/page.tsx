@@ -76,7 +76,7 @@ export default function ManageExercisesPage() {
                                 Gestión de Ejercicios
                             </h1>
                             <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-                                Crea, edita y elimina los ejercicios disponibles en los módulos del curso.
+                                Crea, edita y elimina los ejercicios disponibles en los módulos del grupo.
                             </p>
                         </div>
                         <button

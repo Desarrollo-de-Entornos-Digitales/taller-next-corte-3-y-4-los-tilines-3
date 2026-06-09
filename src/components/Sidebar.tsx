@@ -8,8 +8,8 @@ export default function Sidebar() {
 
     const navItems = [
         { name: 'Feed Principal', path: '/feed', icon: '🏠' },
-        { name: 'Cursos', path: '/courses', icon: '📚' },
-        { name: 'Módulos', path: '/modules/manage', icon: '🧩' },
+        { name: 'Courses', path: '/courses', icon: '📚' },
+        { name: 'Unidades', path: '/modules/manage', icon: '🧩' },
         { name: 'Ejercicios', path: '/ejercicios/manage', icon: '📝' },
         { name: 'Estudiantes', path: '/students', icon: '👥' }, // Placeholder para el futuro
     ];

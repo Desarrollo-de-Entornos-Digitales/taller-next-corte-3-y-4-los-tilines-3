@@ -12,7 +12,7 @@ import { Check, Star, Play, ChevronRight, Calendar, BookOpen, BarChart3, Trophy,
 import { getProfileOverview, ProfileStats } from '../services/profileService';
 
 const initialStats: ProfileStats = {
-    activeCourses: 0,
+    activeUnits: 0,
     averageProgress: 0,
     completedExercises: 0,
     totalExercises: 0,
@@ -40,13 +40,15 @@ export default function ProfilePage() {
         loadingTasks,
         tasksError,
         recentActivity,
+        stats,
+        setStats,
         setTasks,
         setLoadingTasks,
         setTasksError,
         mergeRecentActivity,
     } = useProfileStore();
 
-    const [stats, setStats] = useState<ProfileStats>(initialStats);
+    const displayStats = stats || initialStats;
 
     const displayName = user?.username ?? 'Estudiante';
     const displayRole = user?.roleName ? String(user.roleName).toLowerCase() : 'student';
@@ -55,32 +57,32 @@ export default function ProfilePage() {
     const achievements = useMemo(() => {
         const items: { id: string; title: string; subtitle: string }[] = [];
 
-        if (stats.completedExercises > 0) {
+        if (displayStats.completedExercises > 0) {
             items.push({
                 id: 'logic',
-                title: 'Logica en accion',
-                subtitle: `Completaste ${stats.completedExercises} ejercicio${stats.completedExercises === 1 ? '' : 's'}`,
+                title: 'Lógica en acción',
+                subtitle: `Completaste ${displayStats.completedExercises} ejercicio${displayStats.completedExercises === 1 ? '' : 's'}`,
             });
         }
 
-        if (stats.activeCourses > 0) {
+        if (displayStats.activeUnits > 0) {
             items.push({
                 id: 'explorer',
                 title: 'Explorador',
-                subtitle: `Inscrito en ${stats.activeCourses} curso${stats.activeCourses === 1 ? '' : 's'}`,
+                subtitle: `Has iniciado ${displayStats.activeUnits} unidad${displayStats.activeUnits === 1 ? '' : 'es'}`,
             });
         }
 
-        if (stats.averageProgress >= 80) {
+        if (displayStats.averageProgress >= 80) {
             items.push({
                 id: 'streak',
                 title: 'Ritmo imparable',
-                subtitle: `Mantienes un progreso promedio de ${stats.averageProgress}%`,
+                subtitle: `Mantienes un progreso promedio de ${displayStats.averageProgress}%`,
             });
         }
 
         return items.slice(0, 3);
-    }, [stats]);
+    }, [displayStats]);
 
     useEffect(() => {
         let mounted = true;
@@ -240,14 +242,14 @@ export default function ProfilePage() {
                                 <div className="size-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
                                     <BookOpen className="size-7 text-blue-600" />
                                 </div>
-                                <p className="text-3xl font-black text-gray-900">{stats.activeCourses}</p>
-                                <p className="text-[10px] uppercase font-bold text-gray-400 mt-1">Cursos activos</p>
+                                <p className="text-3xl font-black text-gray-900">{displayStats.activeUnits}</p>
+                                <p className="text-[10px] uppercase font-bold text-gray-400 mt-1">Unidades en desarrollo</p>
                             </div>
                             <div className="flex flex-col items-center">
                                 <div className="size-14 rounded-2xl bg-violet-50 flex items-center justify-center mb-3">
                                     <BarChart3 className="size-7 text-violet-600" />
                                 </div>
-                                <p className="text-3xl font-black text-gray-900">{stats.averageProgress}%</p>
+                                <p className="text-3xl font-black text-gray-900">{displayStats.averageProgress}%</p>
                                 <p className="text-[10px] uppercase font-bold text-gray-400 mt-1 tracking-wider">
                                     Progreso promedio
                                 </p>

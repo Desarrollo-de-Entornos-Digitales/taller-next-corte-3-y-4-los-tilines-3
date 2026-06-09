@@ -37,3 +37,22 @@ export const getFeedItems = async (page: number = 1, limit: number = 6, courseId
         throw error;
     }
 };
+
+export interface FeedExercise {
+    id: number;
+    title: string;
+    description: string;
+    points: number;
+    difficulty_level: number;
+    exercise_type: string;
+}
+
+export const getPendingExercises = async (courseId: number): Promise<FeedExercise[]> => {
+    try {
+        const response = await axiosClient.get<FeedExercise[]>(`/exercise/pending/course/${courseId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching pending exercises:', error);
+        throw error;
+    }
+};

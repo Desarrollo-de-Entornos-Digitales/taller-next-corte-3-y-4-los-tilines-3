@@ -70,6 +70,10 @@ export default function CreateExercisePage() {
         fetchModulesForCourse();
     }, [selectedCourseId]);
 
+    const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCourseId(Number(e.target.value));
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -179,14 +183,14 @@ export default function CreateExercisePage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Curso</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Grupo</label>
                             <select
                                 required
                                 value={selectedCourseId}
-                                onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onChange={handleCourseChange}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700"
                             >
-                                {courses.length === 0 && <option value={0}>Cargando cursos...</option>}
+                                {courses.length === 0 && <option value={0}>Cargando grupos...</option>}
                                 {courses.map((course) => (
                                     <option key={course.id} value={course.id}>
                                         {course.name}

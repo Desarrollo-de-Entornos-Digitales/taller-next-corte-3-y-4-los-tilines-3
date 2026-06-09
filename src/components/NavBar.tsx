@@ -49,13 +49,13 @@ export default function NavBar() {
                             href="/modules/manage"
                             className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer"
                         >
-                            Manage Modules
+                            Gestionar Unidades
                         </Link>
                         <Link
                             href="/ejercicios/manage"
                             className="text-sm font-bold uppercase tracking-wider text-[#4A86F7] hover:text-blue-800 transition-colors cursor-pointer"
                         >
-                            Manage Exercises
+                            Gestionar Ejercicios
                         </Link>
                     </>
                 )}

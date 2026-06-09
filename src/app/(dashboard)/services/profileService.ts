@@ -37,7 +37,7 @@ export interface ProfileRecentActivity {
 }
 
 export interface ProfileStats {
-    activeCourses: number;
+    activeUnits: number;
     averageProgress: number;
     completedExercises: number;
     totalExercises: number;
@@ -60,7 +60,7 @@ const normalizeFeedTasks = (items: FeedItem[], courseId?: number): ProfileUpcomi
                 type: 'Ejercicio',
                 courseName: courseId ? `Curso ${courseId}` : 'Ruta general',
                 moduleName: 'Feed',
-                status: item.status,
+                status: item.status as ProfileTaskStatus,
                 href: courseId ? `/ejercicios/course/${courseId}/module/${item.id}` : '/feed',
                 dateLabel: dates[index % dates.length],
                 color: getExerciseColor('CODING'),
@@ -118,7 +118,7 @@ export const getProfileOverview = async (userId: number): Promise<ProfileOvervie
     ).filter((item): item is NonNullable<typeof item> => item !== null);
 
     const stats: ProfileStats = {
-        activeCourses: hubs.length,
+        activeUnits: hubs.reduce((sum, item) => sum + item.hub.modules.filter(m => m.caminoState !== 'locked').length, 0),
         averageProgress:
             hubs.length > 0
                 ? Math.min(100, Math.round(hubs.reduce((sum, item) => sum + item.hub.overallProgress, 0) / hubs.length))
@@ -220,7 +220,7 @@ export const getProfileOverview = async (userId: number): Promise<ProfileOvervie
             const completedCount = feedData.data.filter((item) => item.status === 'completed').length;
 
             mergedStats = {
-                activeCourses: feedData.course_id ? 1 : 0,
+                activeUnits: feedData.course_id ? 1 : 0,
                 averageProgress: progressAvg,
                 completedExercises: completedCount,
                 totalExercises: feedData.total || totalItems,
@@ -231,15 +231,15 @@ export const getProfileOverview = async (userId: number): Promise<ProfileOvervie
             const feedProgressSum = feedData.data.reduce((sum, item) => sum + (item.progress ?? 0), 0);
             const feedCompleted = feedData.data.filter((item) => item.status === 'completed').length;
 
-            const totalCoursesCount = stats.activeCourses + (feedData.course_id ? 1 : 0);
+            const totalUnitsCount = stats.activeUnits + (feedData.course_id ? 1 : 0);
             const totalProgressSum =
                 hubs.reduce((sum, item) => sum + item.hub.overallProgress, 0) +
                 (totalItems > 0 ? feedProgressSum / totalItems : 0);
 
             mergedStats = {
-                activeCourses: totalCoursesCount,
+                activeUnits: totalUnitsCount,
                 averageProgress:
-                    totalCoursesCount > 0 ? Math.min(100, Math.round(totalProgressSum / totalCoursesCount)) : 0,
+                    totalUnitsCount > 0 ? Math.min(100, Math.round(totalProgressSum / hubs.length)) : 0,
                 completedExercises: stats.completedExercises + feedCompleted,
                 totalExercises: stats.totalExercises + (feedData.total || totalItems),
             };

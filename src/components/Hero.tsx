@@ -13,8 +13,8 @@ export default function Hero({
 }: HeroProps) {
     return (
         <div
-            className="hero mt-6 h-105 overflow-hidden text-white md:h-120 lg:h-130"
-            style={{ backgroundColor: '#1E3A8A' }}
+            className="hero h-105 overflow-hidden text-white md:h-120 lg:h-130"
+            style={{ backgroundColor: '#294cc8' }}
         >
             <div className="hero-content h-full flex-col justify-between gap-12 px-6 py-10 md:px-12 lg:flex-row lg:items-center lg:justify-between w-full max-w-7xl">
                 <div className="flex-1 text-center lg:text-left">

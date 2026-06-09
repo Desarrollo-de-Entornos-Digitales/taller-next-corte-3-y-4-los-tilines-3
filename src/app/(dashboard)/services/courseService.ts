@@ -49,7 +49,6 @@ class CourseService {
 
     async update(id: number, data: UpdateCourseData, actorId: number): Promise<Course> {
         const body: Record<string, unknown> = {
-            professorId: actorId,
             professor_id: actorId,
         };
 
@@ -79,12 +78,22 @@ export const courseService = new CourseService();
 
 export const getMyEnrollments = async (userId: number): Promise<Enrollment[]> => {
     try {
-        const response = await axiosClient.get<Enrollment[]>('/enrollments/my-enrollments', {
-            params: { user_id: userId },
-        });
+        const response = await axiosClient.get<Enrollment[]>(`/courses-enrollments/user/${userId}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching enrollments:', error);
+        throw error;
+    }
+};
+
+export const joinGroup = async (courseId: number, userId: number): Promise<void> => {
+    try {
+        await axiosClient.post('/courses-enrollments', {
+            course_id: courseId,
+            user_id: userId
+        });
+    } catch (error) {
+        console.error('Error joining group:', error);
         throw error;
     }
 };

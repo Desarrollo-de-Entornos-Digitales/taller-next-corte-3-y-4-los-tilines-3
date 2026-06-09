@@ -61,7 +61,7 @@ export default function CreateCoursePage() {
             });
             router.push('/courses');
         } catch (err: any) {
-            setError(err?.response?.data?.message ?? 'Failed to create course');
+            setError(err?.response?.data?.message ?? 'Failed to create grupo');
         } finally {
             setLoading(false);
         }
@@ -75,7 +75,7 @@ export default function CreateCoursePage() {
                 <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
                     <div className="bg-white rounded-3xl p-12 text-center">
                         <h3 className="text-xl font-bold">Access denied</h3>
-                        <p className="text-gray-500 mt-2">You don't have permission to create courses.</p>
+                        <p className="text-gray-500 mt-2">You don't have permission to create grupos.</p>
                     </div>
                 </main>
             ) : (
@@ -83,8 +83,8 @@ export default function CreateCoursePage() {
                     <div className="bg-white rounded-3xl shadow-sm p-8">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h1 className="text-3xl font-black text-gray-900">Create Course</h1>
-                                <p className="text-gray-500 mt-1">Add a new learning path to the platform.</p>
+                                <h1 className="text-3xl font-black text-gray-900">Create Grupo</h1>
+                                <p className="text-gray-500 mt-1">Add a new learning group to the platform.</p>
                             </div>
                         </div>
 
@@ -101,7 +101,7 @@ export default function CreateCoursePage() {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                    placeholder="Course name"
+                                    placeholder="Grupo name"
                                 />
                             </div>
 
@@ -182,12 +182,12 @@ export default function CreateCoursePage() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="btn bg-[#1E3A8A] hover:bg-blue-800 text-white border-none px-6 rounded-xl shadow-md"
+                                    className="btn bg-[#3b82f6] hover:bg-blue-600 text-white border-none px-6 rounded-xl shadow-md"
                                 >
                                     {loading ? (
                                         <span className="loading loading-spinner loading-sm" />
                                     ) : (
-                                        'Create Course'
+                                        'Create Grupo'
                                     )}
                                 </button>
                             </div>

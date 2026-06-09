@@ -86,7 +86,7 @@ export default function ManageModulesPage() {
                                         Nivel {mod.level_order}
                                     </div>
                                     <div className="absolute top-4 left-4 bg-black/10 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                                        Curso {mod.course_id || 'N/A'}
+                                        Grupo {mod.course_id || 'N/A'}
                                     </div>
                                 </div>
                                 

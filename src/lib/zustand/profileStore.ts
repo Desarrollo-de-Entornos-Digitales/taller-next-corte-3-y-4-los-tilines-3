@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { ProfileRecentActivity, ProfileUpcomingTask } from '@/app/(dashboard)/services/profileService';
+import { ProfileRecentActivity, ProfileUpcomingTask, ProfileStats } from '@/app/(dashboard)/services/profileService';
 
 const MAX_RECENT_ITEMS = 20;
 
@@ -15,10 +15,12 @@ export interface ProfileActivityInput {
 }
 
 interface ProfileStore {
+    stats: ProfileStats | null;
     tasks: ProfileUpcomingTask[];
     loadingTasks: boolean;
     tasksError: string | null;
     recentActivity: ProfileRecentActivity[];
+    setStats: (stats: ProfileStats) => void;
     setTasks: (tasks: ProfileUpcomingTask[]) => void;
     setLoadingTasks: (loading: boolean) => void;
     setTasksError: (error: string | null) => void;
@@ -30,10 +32,12 @@ interface ProfileStore {
 export const useProfileStore = create<ProfileStore>()(
     persist(
         (set) => ({
+            stats: null,
             tasks: [],
             loadingTasks: false,
             tasksError: null,
             recentActivity: [],
+            setStats: (stats) => set({ stats }),
             setTasks: (tasks) => set({ tasks }),
             setLoadingTasks: (loadingTasks) => set({ loadingTasks }),
             setTasksError: (tasksError) => set({ tasksError }),
