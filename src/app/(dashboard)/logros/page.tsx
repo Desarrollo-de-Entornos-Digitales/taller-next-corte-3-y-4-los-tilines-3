@@ -40,27 +40,16 @@ export default function LogrosPage() {
         );
     }
 
-    // Figma Mock Data Fallback
-    const mockAchievements = [
-        { id: 1, name: 'Primeros Pasos', description: 'Completa tu primer ejercicio', points_required: 10, date: '10 Abr 2024', icon: '📖' },
-        { id: 2, name: 'Código Limpio', description: 'Resuelve 5 ejercicios sin errores', points_required: 50, date: '14 Abr 2024', icon: '💻' },
-        { id: 3, name: 'Semana Constante', description: 'Estudia 7 días seguidos', points_required: 100, date: '20 Abr 2024', icon: '🏅' },
-        { id: 4, name: 'Racha de 7 días', description: 'Mantén una racha de 7 días', points_required: 100, date: '22 Abr 2024', icon: '🔥' },
-        { id: 5, name: 'Experto en Retos', description: 'Completa 10 retos', points_required: 200, date: '25 Abr 2024', icon: '🏆' },
-        { id: 6, name: 'Maestro Algorítmico', description: 'Completa todas las unidades', points_required: 500, date: '---', icon: '🔒', locked: true },
-    ];
-
-    const displayAchievements = allAchievements.length > 0 ? allAchievements : mockAchievements;
-    
     const unlockedIds = new Set(unlockedAchievements.map((ua) => ua.achievement_id));
     
-    // Use mock stats if we are using mock achievements
-    const isMock = allAchievements.length === 0;
-    const totalUnlocked = isMock ? 23 : unlockedAchievements.length;
-    const totalAchievements = isMock ? 40 : allAchievements.length;
-    const completionPercentage = isMock ? 57 : (totalAchievements > 0 ? Math.round((totalUnlocked / totalAchievements) * 100) : 0);
-    const totalPoints = isMock ? 3200 : allAchievements.filter((a) => unlockedIds.has(a.id)).reduce((sum, a) => sum + a.points_required, 0);
-    const streakDays = isMock ? 12 : 0;
+    // We now rely purely on the real data from the API
+    const totalUnlocked = unlockedAchievements.length;
+    const totalAchievements = allAchievements.length;
+    const completionPercentage = totalAchievements > 0 ? Math.round((totalUnlocked / totalAchievements) * 100) : 0;
+    
+    // Total points is the sum of points of unlocked achievements
+    const totalPoints = allAchievements.filter((a) => unlockedIds.has(a.id)).reduce((sum, a) => sum + a.points_required, 0);
+    const streakDays = 0; // Here you could fetch the real streak from user stats
 
     const getIconStyleForAchievement = (name: string, isLocked: boolean) => {
         if (isLocked) return { bg: 'bg-gray-100', icon: '🔒' };
@@ -192,8 +181,8 @@ export default function LogrosPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
-                    {displayAchievements.map((achievement: any) => {
-                        const isUnlocked = isMock ? !achievement.locked : unlockedIds.has(achievement.id);
+                    {allAchievements.map((achievement: any) => {
+                        const isUnlocked = unlockedIds.has(achievement.id);
                         const style = getIconStyleForAchievement(achievement.name, !isUnlocked);
                         
                         return (
