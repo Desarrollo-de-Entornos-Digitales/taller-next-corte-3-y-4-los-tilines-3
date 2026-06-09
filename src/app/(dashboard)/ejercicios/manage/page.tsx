@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { getExercises, deleteExercise, Exercise } from '../../services/exerciseManageService';
 import { moduleService, ModuleEntity } from '../../services/moduleService';
 import ManagementLayout from '../../../../components/ManagementLayout';
+import { toast } from '@/lib/zustand/toastStore';
 
 export default function ManageExercisesPage() {
     const router = useRouter();
@@ -33,19 +34,25 @@ export default function ManageExercisesPage() {
         } catch (err) {
             console.error(err);
             setError('Failed to load data.');
+            toast.error('Error al cargar datos');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this exercise?')) {
+        if (confirm('¿Estás seguro de que deseas eliminar este ejercicio?')) {
             try {
                 await deleteExercise(id);
                 await loadData();
-            } catch (err) {
+                toast.success('Ejercicio eliminado con éxito');
+            } catch (err: any) {
                 console.error(err);
-                alert('Failed to delete exercise');
+                if (err.response?.status === 500) {
+                    toast.error('No se puede eliminar: el ejercicio ya tiene intentos de estudiantes.');
+                } else {
+                    toast.error('Error al eliminar el ejercicio.');
+                }
             }
         }
     };
@@ -67,23 +74,23 @@ export default function ManageExercisesPage() {
 
     return (
         <ManagementLayout>
-            <main className="max-w-7xl mx-auto px-6 py-8 w-full">
-                <header className="mb-8 rounded-[2rem] bg-white px-8 py-6 shadow-sm ring-1 ring-black/5">
-                    <div className="flex justify-between items-center">
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-8">
+                <p className="text-sm font-bold text-gray-400 mb-6">Panel de control</p>
+                <header className="mb-12 rounded-3xl bg-white px-8 py-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Panel Docente</p>
-                            <h1 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl text-gray-900">
-                                Gestión de Ejercicios
+                            <h1 className="text-3xl font-black text-gray-900 mb-2">
+                                Gestión de ejercicios
                             </h1>
-                            <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-                                Crea, edita y elimina los ejercicios disponibles en los módulos del grupo.
+                            <p className="text-sm font-medium text-gray-500">
+                                Crea, edita y elimina los ejercicios en los módulos del grupo
                             </p>
                         </div>
                         <button
                             onClick={() => router.push('/ejercicios/manage/create')}
-                            className="bg-[#4A86F7] hover:bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-md transition-all active:scale-95"
+                            className="bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition-all active:scale-95 shrink-0 flex items-center gap-2"
                         >
-                            + Nuevo Ejercicio
+                            <span className="text-xl leading-none">+</span> Nuevo ejercicio
                         </button>
                     </div>
                 </header>
@@ -92,7 +99,7 @@ export default function ManageExercisesPage() {
 
                 {loading ? (
                     <div className="text-center py-20">
-                        <span className="loading loading-spinner loading-lg text-[#4A86F7]"></span>
+                        <span className="loading loading-spinner loading-lg text-[#3b82f6]"></span>
                     </div>
                 ) : (
                     <div>
@@ -102,45 +109,41 @@ export default function ManageExercisesPage() {
 
                             return (
                                 <div key={mod.id} className="mb-14">
-                                    <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                                        <span className="bg-[#E3F2FD] text-[#1976D2] w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-inner">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="w-12 h-12 rounded-full border-2 border-blue-400 text-blue-500 flex items-center justify-center font-black text-xl shrink-0">
                                             {mod.level_order}
-                                        </span>
-                                        Módulo: {mod.title}
-                                    </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        </div>
+                                        <h2 className="text-[28px] font-black text-black">
+                                            Unidad {mod.level_order}: {mod.title}
+                                        </h2>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {moduleExercises.map((exercise) => (
                                             <div
                                                 key={exercise.id}
-                                                className="bg-white rounded-[1.5rem] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300"
+                                                className="bg-white rounded-[1.5rem] border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300"
                                             >
-                                                <div className={`h-40 ${getColor(modIndex)} relative`}>
-                                                    <div className="absolute top-4 right-4 bg-white/25 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm flex items-center gap-1">
-                                                        <span>🎯 pts:</span> {exercise.points}
-                                                    </div>
-                                                    <div className="absolute top-4 left-4 bg-black/10 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                                                        {getTypeLabel(exercise.exercise_type)}
-                                                    </div>
-                                                </div>
+                                                <div className={`h-[180px] ${getColor(modIndex)} relative`} />
 
-                                                <div className="p-6 flex flex-col flex-grow">
-                                                    <h3 className="text-xl font-extrabold text-gray-900 mb-2 group-hover:text-[#4A86F7] transition-colors line-clamp-1">
+                                                <div className="p-8 flex flex-col flex-grow">
+                                                    <h3 className="text-[20px] font-black text-black mb-2 line-clamp-1">
                                                         {exercise.title}
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 line-clamp-2 mb-6 font-medium">
+                                                    <p className="text-[13px] text-gray-800 line-clamp-2 mb-8 font-medium italic">
                                                         {exercise.description}
                                                     </p>
 
-                                                    <div className="flex gap-2 mt-auto">
+                                                    <div className="flex gap-4 mt-auto">
                                                         <button
                                                             onClick={() => router.push(`/ejercicios/manage/edit/${exercise.id}`)}
-                                                            className="flex-1 bg-white hover:bg-[#4A86F7] text-[#4A86F7] hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-blue-200 shadow-sm"
+                                                            className="flex-1 bg-white hover:bg-blue-50 text-[#3b82f6] py-3 rounded-2xl text-[13px] font-black transition-all border border-blue-100"
                                                         >
                                                             Editar
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(exercise.id)}
-                                                            className="flex-1 bg-white hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-red-200 shadow-sm"
+                                                            className="flex-1 bg-white hover:bg-red-50 text-red-500 py-3 rounded-2xl text-[13px] font-black transition-all border border-red-100"
                                                         >
                                                             Eliminar
                                                         </button>
@@ -153,68 +156,8 @@ export default function ManageExercisesPage() {
                             );
                         })}
 
-                        {/* Uncategorized / Orphan exercises just in case */}
-                        {(() => {
-                            const orphanExercises = exercises.filter((ex) => !modules.find((m) => m.id === ex.module_id));
-                            if (orphanExercises.length === 0) return null;
-                            return (
-                                <div className="mb-14">
-                                    <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                                        <span className="bg-gray-200 text-gray-600 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-inner">
-                                            ?
-                                        </span>
-                                        Sin Módulo
-                                    </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {orphanExercises.map((exercise) => (
-                                            <div
-                                                key={exercise.id}
-                                                className="bg-white rounded-[1.5rem] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300"
-                                            >
-                                                <div className={`h-40 bg-gray-400 relative`}>
-                                                    <div className="absolute top-4 right-4 bg-white/25 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm flex items-center gap-1">
-                                                        <span>🎯 pts:</span> {exercise.points}
-                                                    </div>
-                                                    <div className="absolute top-4 left-4 bg-black/10 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                                                        {getTypeLabel(exercise.exercise_type)}
-                                                    </div>
-                                                </div>
-
-                                                <div className="p-6 flex flex-col flex-grow">
-                                                    <h3 className="text-xl font-extrabold text-gray-900 mb-2 group-hover:text-[#4A86F7] transition-colors line-clamp-1">
-                                                        {exercise.title}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500 line-clamp-2 mb-6 font-medium">
-                                                        {exercise.description}
-                                                    </p>
-
-                                                    <div className="flex gap-2 mt-auto">
-                                                        <button
-                                                            onClick={() => router.push(`/ejercicios/manage/edit/${exercise.id}`)}
-                                                            className="flex-1 bg-white hover:bg-[#4A86F7] text-[#4A86F7] hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-blue-200 shadow-sm"
-                                                        >
-                                                            Editar
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(exercise.id)}
-                                                            className="flex-1 bg-white hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-red-200 shadow-sm"
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
                         {exercises.length === 0 && !error && (
-                            <div className="col-span-full bg-white rounded-[2rem] p-16 text-center shadow-sm ring-1 ring-black/5">
-                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="text-3xl">📝</span>
-                                </div>
+                            <div className="col-span-full bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Aún no hay ejercicios</h3>
                                 <p className="text-gray-500 max-w-md mx-auto">
                                     Crea tu primer ejercicio interactivo para poner a prueba a los estudiantes.

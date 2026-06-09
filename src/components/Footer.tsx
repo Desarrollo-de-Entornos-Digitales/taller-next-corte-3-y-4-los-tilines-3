@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function Footer() {
     return (
-        <footer className="footer sm:footer-horizontal p-10 text-white mt-auto" style={{ backgroundColor: '#1E3A8A' }}>
+        <footer className="footer sm:footer-horizontal w-full p-10 text-white mt-auto rounded-t-[2.5rem]" style={{ backgroundColor: '#1E3A8A' }}>
             <aside className="flex flex-col gap-4">
                 <Image
                     src="/Otly-logo.svg"

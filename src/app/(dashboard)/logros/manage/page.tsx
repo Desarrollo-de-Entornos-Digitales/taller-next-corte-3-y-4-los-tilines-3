@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { achievementsManageService, CreateAchievementDto } from '../../services/achievementsManageService';
 import { Achievement } from '../../services/achievementsService';
+import { toast } from '@/lib/zustand/toastStore';
 
 export default function LogrosManagePage() {
     const { user, isAdmin } = useAuth();
@@ -70,9 +71,10 @@ export default function LogrosManagePage() {
         try {
             await achievementsManageService.delete(id);
             fetchAchievements();
+            toast.success('Logro eliminado correctamente');
         } catch (error) {
             console.error('Error deleting achievement', error);
-            alert('No se pudo eliminar el logro.');
+            toast.error('No se pudo eliminar el logro.');
         }
     };
 
@@ -81,14 +83,16 @@ export default function LogrosManagePage() {
         try {
             if (isEditing && currentId) {
                 await achievementsManageService.update(currentId, formData);
+                toast.success('Logro actualizado correctamente');
             } else {
                 await achievementsManageService.create(formData);
+                toast.success('Logro creado correctamente');
             }
             setIsModalOpen(false);
             fetchAchievements();
         } catch (error) {
             console.error('Error saving achievement', error);
-            alert('Error al guardar el logro.');
+            toast.error('Error al guardar el logro.');
         }
     };
 

@@ -238,7 +238,7 @@ function Section({
                                 title: `Unit ${ex.level_order || ex.id} - Ex ${ex.id}`,
                                 description: `${ex.points} puntos - Dificultad Nivel ${ex.difficulty_level}`,
                                 status: 'in_progress',
-                                progress: 1 // hardcoded to match the visual 1% indicator
+                                progress: 0 // hardcoded to match the visual 0% indicator
                             };
                             return <Card key={ex.id} item={feedItem} courseId={courseId} href={`/arena/${ex.id}`} />;
                         } else {

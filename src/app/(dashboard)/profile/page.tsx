@@ -259,55 +259,48 @@ export default function ProfilePage() {
                     </article>
 
                     {/* Recent Activity - AHORA USA DATOS REALES */}
-                    <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] flex flex-col">
-                        <h2 className="font-black text-gray-900 text-[17px] mb-6">Actividad reciente</h2>
+                    {!isProfessor && (
+                        <article className="rounded-3xl bg-white border border-gray-200 p-8 shadow-[0_2px_15px_rgba(0,0,0,0.02)] flex flex-col">
+                            <h2 className="font-black text-gray-900 text-[17px] mb-6">Actividad reciente</h2>
 
-                        {recentActivity.length === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center py-8">
-                                <p className="text-sm text-gray-400">No hay actividad reciente</p>
-                            </div>
-                        ) : (
-                            <div className="flex-1 space-y-5">
-                                {recentActivity.slice(0, 3).map((activity) => (
-                                    <div key={activity.id} className="flex items-start gap-3">
-                                        <div
-                                            className="size-8 rounded-full flex items-center justify-center shrink-0 border"
-                                            style={{
-                                                backgroundColor: activity.color ? `${activity.color}15` : '#4A86F715',
-                                                borderColor: activity.color ? `${activity.color}30` : '#4A86F730',
-                                                color: activity.color || '#4A86F7',
-                                            }}
-                                        >
-                                            {activity.icon === 'star' ? (
-                                                <Star className="size-4 fill-current" />
-                                            ) : activity.icon === 'play' ? (
-                                                <Play className="size-4 fill-current" />
-                                            ) : (
-                                                <Check className="size-4" />
-                                            )}
+                            {recentActivity.length === 0 ? (
+                                <div className="flex-1 flex flex-col items-center justify-center py-8">
+                                    <p className="text-sm text-gray-400">No hay actividad reciente</p>
+                                </div>
+                            ) : (
+                                <div className="flex-1 space-y-5">
+                                    {recentActivity.slice(0, 3).map((activity) => (
+                                        <div key={activity.id} className="flex items-start gap-3">
+                                            <div
+                                                className="size-8 rounded-full flex items-center justify-center shrink-0 border"
+                                                style={{
+                                                    backgroundColor: activity.color ? `${activity.color}15` : '#4A86F715',
+                                                    borderColor: activity.color ? `${activity.color}30` : '#4A86F730',
+                                                    color: activity.color || '#4A86F7',
+                                                }}
+                                            >
+                                                {activity.icon === 'star' ? (
+                                                    <Star className="size-4 fill-current" />
+                                                ) : activity.icon === 'play' ? (
+                                                    <Play className="size-4 fill-current" />
+                                                ) : (
+                                                    <Check className="size-4" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0 mt-0.5">
+                                                <p className="text-sm font-bold text-gray-900 leading-tight">
+                                                    {activity.title}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {formatActivityTime(activity.createdAt)}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="flex-1 min-w-0 mt-0.5">
-                                            <p className="text-sm font-bold text-gray-900 leading-tight">
-                                                {activity.title}
-                                            </p>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {formatActivityTime(activity.createdAt)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="mt-auto pt-4">
-                            <Link
-                                href="/activity"
-                                className="text-[13px] font-bold text-[#2563EB] hover:underline flex items-center justify-between"
-                            >
-                                Ver toda mi actividad <ChevronRight className="size-4" />
-                            </Link>
-                        </div>
-                    </article>
+                                    ))}
+                                </div>
+                            )}
+                        </article>
+                    )}
 
                     {/* Achievements - SOLO para estudiantes */}
                     {!isProfessor && (
@@ -317,12 +310,12 @@ export default function ProfilePage() {
                             {realAchievements.length === 0 ? (
                                 <div className="flex-1">
                                     <div className="flex items-start gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-xl shadow-inner">
-                                            🌟
+                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-xl shadow-inner text-emerald-600">
+                                            <Trophy className="size-5" />
                                         </div>
                                         <div className="mt-1">
-                                            <p className="text-sm font-bold text-gray-900">Lógica en acción</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">Completaste una unidad</p>
+                                            <p className="text-sm font-bold text-gray-900">Bienvenido</p>
+                                            <p className="text-xs text-gray-500 mt-0.5">Aún no tienes logros</p>
                                         </div>
                                     </div>
                                 </div>
@@ -335,10 +328,10 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="mt-1">
                                                 <p className="text-[15px] font-bold text-gray-900">
-                                                    {ua.achievement?.name || 'Logro Desbloqueado'}
+                                                    {ua.achievement?.name || ''}
                                                 </p>
                                                 <p className="text-xs text-gray-500 mt-0.5">
-                                                    {ua.achievement?.description || '¡Sigue así!'}
+                                                    {ua.achievement?.description || ''}
                                                 </p>
                                             </div>
                                         </div>

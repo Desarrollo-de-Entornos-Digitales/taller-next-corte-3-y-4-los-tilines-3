@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { achievementsService, Achievement, UserAchievement } from '../services/achievementsService';
+import { Settings, Trophy, Lock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
+import ManagementLayout from '@/components/ManagementLayout';
 
 export default function LogrosPage() {
     const { user, token, isAdmin } = useAuth();
@@ -69,9 +69,7 @@ export default function LogrosPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col font-sans">
-            <NavBar />
-
+        <ManagementLayout>
             <main className="flex-1 max-w-[1200px] w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in pb-20">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-100 pb-4">
@@ -84,7 +82,7 @@ export default function LogrosPage() {
                             href="/logros/manage"
                             className="inline-flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 px-6 rounded-full transition-colors shadow-sm gap-2 text-sm whitespace-nowrap w-fit"
                         >
-                            ⚙️ Administrar Logros
+                            <Settings className="w-4 h-4" /> Administrar Logros
                         </Link>
                     )}
                 </div>
@@ -130,8 +128,8 @@ export default function LogrosPage() {
                     {/* Right side: 2 Stats */}
                     <div className="flex-grow flex justify-center gap-6 w-full md:w-auto">
                         <div className="flex flex-col items-center justify-center">
-                            <div className="w-16 h-16 bg-[#EEF2FF] text-[#4A86F7] rounded-full flex items-center justify-center text-3xl shadow-sm mb-3">
-                                ✻
+                            <div className="w-16 h-16 bg-[#EEF2FF] text-[#4A86F7] rounded-full flex items-center justify-center shadow-sm mb-3">
+                                <Trophy className="w-8 h-8" />
                             </div>
                             <div className="text-center">
                                 <div className="text-2xl font-black text-gray-900">{totalUnlocked}</div>
@@ -139,8 +137,8 @@ export default function LogrosPage() {
                             </div>
                         </div>
                         <div className="flex flex-col items-center justify-center">
-                            <div className="w-16 h-16 bg-[#F3E8FF] text-[#A855F7] rounded-full flex items-center justify-center text-2xl shadow-sm mb-3">
-                                🔒
+                            <div className="w-16 h-16 bg-[#F3E8FF] text-[#A855F7] rounded-full flex items-center justify-center shadow-sm mb-3">
+                                <Lock className="w-8 h-8" />
                             </div>
                             <div className="text-center">
                                 <div className="text-2xl font-black text-gray-900">
@@ -226,8 +224,8 @@ export default function LogrosPage() {
                 {/* Motivational Banner */}
                 <div className="bg-[#EBF1FF] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 mt-12">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm text-2xl text-blue-500">
-                            ✨
+                        <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500">
+                            <Sparkles className="w-7 h-7" />
                         </div>
                         <div>
                             <h4 className="text-[17px] font-black text-gray-900 mb-0.5 tracking-tight">
@@ -243,8 +241,6 @@ export default function LogrosPage() {
                     </button>
                 </div>
             </main>
-
-            <Footer />
-        </div>
+        </ManagementLayout>
     );
 }

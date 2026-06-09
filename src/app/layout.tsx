@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import ToastProvider from '@/components/ToastProvider';
 
 const poppins = Poppins({
     variable: '--font-poppins',
@@ -23,7 +24,10 @@ export default function RootLayout({
     return (
         <html lang="en" data-theme="light" className={`${poppins.variable} font-sans h-full antialiased`}>
             <body className="min-h-full flex flex-col font-sans">
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                    {children}
+                    <ToastProvider />
+                </AuthProvider>
             </body>
         </html>
     );

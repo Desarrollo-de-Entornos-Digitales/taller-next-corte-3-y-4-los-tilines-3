@@ -86,8 +86,12 @@ export default function Card({
                     </div>
 
                     {item?.status !== 'pending' && item?.progress !== undefined && (
-                        <div className="flex-shrink-0 flex items-center justify-center relative w-12 h-12 rounded-full border-2 border-gray-200">
-                            <span className="text-xs font-bold text-gray-900">{item.progress}%</span>
+                        <div 
+                            className="radial-progress bg-white text-gray-300 border-2 border-gray-100 flex-shrink-0 relative" 
+                            style={{ "--value": item.progress, "--size": "3.5rem", "--thickness": "0.25rem" } as React.CSSProperties} 
+                            role="progressbar"
+                        >
+                            <span className="text-[13px] font-black text-gray-900">{item.progress}%</span>
                         </div>
                     )}
                 </div>

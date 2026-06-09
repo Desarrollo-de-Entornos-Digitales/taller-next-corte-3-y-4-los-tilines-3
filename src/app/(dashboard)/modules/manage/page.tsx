@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { moduleService, ModuleEntity } from '../../services/moduleService';
 import ManagementLayout from '../../../../components/ManagementLayout';
+import { toast } from '@/lib/zustand/toastStore';
 
 export default function ManageModulesPage() {
     const router = useRouter();
@@ -27,6 +28,7 @@ export default function ManageModulesPage() {
         } catch (err) {
             console.error(err);
             setError('Failed to load modules.');
+            toast.error('Error al cargar módulos');
         } finally {
             setLoading(false);
         }
@@ -37,33 +39,37 @@ export default function ManageModulesPage() {
             try {
                 await moduleService.remove(id);
                 await loadModules();
-            } catch (err) {
+                toast.success('Módulo eliminado con éxito');
+            } catch (err: any) {
                 console.error(err);
-                alert('Failed to delete module');
+                if (err.response?.status === 500) {
+                    toast.error('No se puede eliminar: el módulo contiene ejercicios.');
+                } else {
+                    toast.error('Error al eliminar el módulo');
+                }
             }
         }
     };
 
     return (
         <ManagementLayout>
-            <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
-                <header className="mb-8 rounded-[2rem] bg-white px-8 py-6 shadow-sm ring-1 ring-black/5">
-                    <div className="flex justify-between items-center">
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-8">
+                <p className="text-sm font-bold text-gray-400 mb-6">Panel de control</p>
+                <header className="mb-12 rounded-3xl bg-white px-8 py-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Panel de Control</p>
-                            <h1 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl text-gray-900">
-                                Gestión de Módulos
+                            <h1 className="text-3xl font-black text-gray-900 mb-2">
+                                Gestión de módulos
                             </h1>
-                            <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-                                Administra los módulos de aprendizaje. Puedes asignar ejercicios a cada módulo
-                                posteriormente.
+                            <p className="text-sm font-medium text-gray-500">
+                                Administra los módulos de aprendizaje. Puedes asignar ejercicios a cada módulo posteriormente.
                             </p>
                         </div>
                         <button
                             onClick={() => router.push('/modules/create')}
-                            className="bg-[#4A86F7] hover:bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-md transition-all active:scale-95"
+                            className="bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition-all active:scale-95 shrink-0 flex items-center gap-2"
                         >
-                            + Nuevo Módulo
+                            <span className="text-xl leading-none">+</span> Nuevo módulo
                         </button>
                     </div>
                 </header>
@@ -72,42 +78,42 @@ export default function ManageModulesPage() {
 
                 {loading ? (
                     <div className="text-center py-20">
-                        <span className="loading loading-spinner loading-lg text-[#4A86F7]"></span>
+                        <span className="loading loading-spinner loading-lg text-[#3b82f6]"></span>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {modules.map((mod, index) => (
                             <div
                                 key={mod.id}
-                                className="bg-white rounded-[1.5rem] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300"
+                                className="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.02)] overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300"
                             >
-                                <div className={`h-40 ${getColor(index)} relative`}>
-                                    <div className="absolute top-4 right-4 bg-white/25 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                                        Nivel {mod.level_order}
+                                <div className={`h-40 ${getColor(index)} relative p-6 flex flex-col justify-between`}>
+                                    <div className="flex justify-between items-start">
+                                        <div className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
+                                            Nivel {mod.level_order}
+                                        </div>
                                     </div>
-                                    <div className="absolute top-4 left-4 bg-black/10 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                                        Grupo {mod.course_id || 'N/A'}
-                                    </div>
+                                    <h3 className="text-2xl font-black text-white mt-auto truncate drop-shadow-sm">
+                                        {mod.title}
+                                    </h3>
                                 </div>
                                 
                                 <div className="p-6 flex flex-col flex-grow">
-                                    <h3 className="text-xl font-extrabold text-gray-900 mb-2 group-hover:text-[#4A86F7] transition-colors line-clamp-1">
-                                        {mod.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 line-clamp-2 mb-6 font-medium">
+                                    <h4 className="text-lg font-black text-gray-900 mb-1">{mod.title}</h4>
+                                    <p className="text-sm text-gray-500 line-clamp-2 mb-6 font-medium italic">
                                         {mod.description}
                                     </p>
 
-                                    <div className="flex gap-2 mt-auto">
+                                    <div className="flex gap-4 mt-auto">
                                         <button
                                             onClick={() => router.push(`/modules/edit/${mod.id}`)}
-                                            className="flex-1 bg-white hover:bg-[#4A86F7] text-[#4A86F7] hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-blue-200 shadow-sm"
+                                            className="flex-1 bg-white hover:bg-blue-50 text-[#3b82f6] py-2.5 rounded-2xl text-sm font-black transition-all border border-blue-100"
                                         >
                                             Editar
                                         </button>
                                         <button
                                             onClick={() => handleDelete(mod.id)}
-                                            className="flex-1 bg-white hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-xl text-sm font-bold transition-all border border-red-200 shadow-sm"
+                                            className="flex-1 bg-white hover:bg-red-50 text-red-500 py-2.5 rounded-2xl text-sm font-black transition-all border border-red-100"
                                         >
                                             Eliminar
                                         </button>
@@ -117,10 +123,7 @@ export default function ManageModulesPage() {
                         ))}
 
                         {modules.length === 0 && !error && (
-                            <div className="col-span-full bg-white rounded-[2rem] p-16 text-center shadow-sm ring-1 ring-black/5">
-                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="text-3xl">📚</span>
-                                </div>
+                            <div className="col-span-full bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">Aún no hay módulos</h3>
                                 <p className="text-gray-500 max-w-md mx-auto">
                                     Crea tu primer módulo para empezar a estructurar la ruta de aprendizaje de tus

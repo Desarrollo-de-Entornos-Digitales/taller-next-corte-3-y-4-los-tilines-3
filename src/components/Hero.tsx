@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface HeroProps {
     isDashboard?: boolean;
@@ -30,14 +31,16 @@ export default function Hero({
                                 Programming can actually be <span className="font-black">fun.</span>
                             </h1>
                             <p className="py-4 text-base italic text-white/80">{description}</p>
-                            <button className="btn btn-primary mt-2">Let&apos;s begin</button>
+                            <Link href="/register" className="btn btn-primary mt-2">
+                                Let&apos;s begin
+                            </Link>
                         </>
                     )}
                 </div>
 
                 <div className="flex-1 flex justify-center lg:justify-end">
                     <Image
-                        src="/Boy1.svg"
+                        src="/image 26.svg"
                         width={520}
                         height={420}
                         className="w-full max-w-md lg:max-w-lg"
